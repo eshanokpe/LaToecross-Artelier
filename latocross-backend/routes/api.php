@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\FashionController;
 use App\Http\Controllers\Api\SettingsController;
@@ -20,3 +21,6 @@ Route::get('/fashion/{id}', [FashionController::class, 'show']);
 Route::get('/settings', [SettingsController::class, 'index']);
 
 Route::post('/contact', [ContactController::class, 'store']);
+
+Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/{slug}', [ArticleController::class, 'show']);
