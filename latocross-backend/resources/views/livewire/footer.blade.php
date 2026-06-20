@@ -1,0 +1,237 @@
+<div>
+    <footer class="footer-section" 
+            x-data="{ showSuccess: @entangle('showSuccess') }"
+            x-init="Livewire.on('reset-success', (data) => { 
+                setTimeout(() => { showSuccess = false }, data[0].delay || 5000)
+            })">
+        <div class="container">
+            <div class="footer-menu-wrap">
+                <div class="row gy-5">
+                    <!-- About Column -->
+                    <div class="col-lg-4 col-md-6 col-sm-8">
+                        <div class="footer-content-area">
+                            <a href="{{ route('home') }}" class="footer-logo" wire:navigate>
+                                <img src="{{ asset('assets/img/footer-logo.svg') }}" alt="Artmart">
+                            </a>
+                            <p>An Art Action Company typically operates in the space of live art, performance, and
+                            social practice, often combining elements of activism and community engagement.</p>
+                            <ul class="social-list">
+                                <li>
+                                    <a href="https://www.facebook.com/" target="_blank" rel="noopener">
+                                        <i class="bi bi-facebook"></i>
+                                        <span>Facebook</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.instagram.com/" target="_blank" rel="noopener">
+                                        <i class="bi bi-instagram"></i>
+                                        <span>Instagram</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.linkedin.com/" target="_blank" rel="noopener">
+                                        <i class="bi bi-linkedin"></i>
+                                        <span>LinkedIn</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://twitter.com/" target="_blank" rel="noopener">
+                                        <i class="bi bi-twitter-x"></i>
+                                        <span>Twitter</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Menu Column -->
+                    <div class="col-lg-2 col-md-3 col-sm-4 d-flex justify-content-lg-end justify-content-md-center justify-content-sm-end">
+                        <div class="footer-widget">
+                            <div class="widget-title">
+                                <h5>Menu</h5>
+                            </div>
+                            <ul class="widget-list">
+                                <li>
+                                    <a href="{{ route('artists-portfolio') }}" wire:navigate>Artists Portfolio</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('art-catalog') }}" wire:navigate>Art Catalog</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('departments') }}" wire:navigate>Departments</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('contact') }}" wire:navigate>Contact</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Resources Column -->
+                    <div class="col-lg-2 col-md-3 col-sm-5 d-flex justify-content-md-end">
+                        <div class="footer-widget">
+                            <div class="widget-title">
+                                <h5>Resources</h5>
+                            </div>
+                            <ul class="widget-list">
+                                <li>
+                                    <a href="{{ route('blog') }}" wire:navigate>Blog</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('about') }}" wire:navigate>About us</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('how-to-bid') }}" wire:navigate>How to bid</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('how-to-sell') }}" wire:navigate>How to sell</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('faq') }}" wire:navigate>F.A.Q</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Newsletter Column -->
+                    <div class="col-md-4 col-sm-7 d-flex justify-content-lg-end justify-content-md-center justify-content-sm-end">
+                        <div class="newsletter-and-payment-area">
+                            <h4>For Exclusive Art Updates Join Our Newsletter!</h4>
+                            
+                            @if($showSuccess)
+                                <div class="alert alert-success mt-3" role="alert">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Thank you for subscribing! Check your email for confirmation.
+                                </div>
+                            @endif
+
+                            <form wire:submit.prevent="subscribe">
+                                <div class="form-inner">
+                                    <input type="email" 
+                                           wire:model="email"
+                                           placeholder="Email Address"
+                                           class="form-control @error('email') is-invalid @enderror">
+                                    <button type="submit" wire:loading.attr="disabled">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </div>
+                                @error('email')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </form>
+
+                            <div class="payment-area">
+                                <h6>Secured Payment Gateways</h6>
+                                <ul class="payment-options">
+                                    <li>
+                                        <img src="{{ asset('assets/img/home1/icon/visa.svg') }}" alt="Visa">
+                                    </li>
+                                    <li>
+                                        <img src="{{ asset('assets/img/home1/icon/master-card.svg') }}" alt="MasterCard">
+                                    </li>
+                                    <li>
+                                        <img src="{{ asset('assets/img/home1/icon/american-express.svg') }}" alt="American Express">
+                                    </li>
+                                    <li>
+                                        <img src="{{ asset('assets/img/home1/icon/maestro.svg') }}" alt="Maestro">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="copyright-area">
+                    <p>
+                        ©Copyright {{ date('Y') }} <a href="{{ route('home') }}" wire:navigate>Artmart</a>
+                        | Design By <a href="https://www.egenslab.com/" target="_blank" rel="noopener">Egens Lab</a>
+                    </p>
+                </div>
+                <div class="footer-bottom-right">
+                    <ul>
+                        <li>
+                            <a href="{{ route('support') }}" wire:navigate>Support Center</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('terms') }}" wire:navigate>Terms & Conditions</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('privacy') }}" wire:navigate>Privacy Policy</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    @push('styles')
+    <style>
+        .footer-section .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        
+        .footer-section .form-control.is-invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .footer-section .alert-success {
+            animation: slideDown 0.5s ease;
+        }
+        
+        @keyframes slideDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Dark Mode Styles */
+        .dark-mode .footer-section {
+            background: #1a1a2e !important;
+            border-top-color: #2d2d44 !important;
+        }
+        
+        .dark-mode .footer-section h4,
+        .dark-mode .footer-section h5,
+        .dark-mode .footer-section h6 {
+            color: #e0e0e0 !important;
+        }
+        
+        .dark-mode .footer-section p,
+        .dark-mode .footer-section .widget-list a {
+            color: #b0b0b0 !important;
+        }
+        
+        .dark-mode .footer-section .widget-list a:hover {
+            color: #ff6b6b !important;
+        }
+        
+        .dark-mode .footer-section .footer-bottom {
+            border-top-color: #2d2d44 !important;
+        }
+        
+        .dark-mode .footer-section .form-control {
+            background: #2d2d44;
+            border-color: #3d3d55;
+            color: #e0e0e0;
+        }
+        
+        .dark-mode .footer-section .form-control::placeholder {
+            color: #8888aa;
+        }
+        
+        .dark-mode .footer-section .form-control:focus {
+            background: #2d2d44;
+            border-color: #ff6b6b;
+            color: #e0e0e0;
+        }
+    </style>
+    @endpush
+</div>

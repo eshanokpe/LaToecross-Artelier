@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
+    // ✅ Your existing index method (keep it)
     public function index()
     {
         return Article::where('is_published', true)
@@ -15,16 +16,27 @@ class ArticleController extends Controller
             ->map(fn($article) => [
                 'id' => $article->id,
                 'title' => $article->title,
-                'slug' => $article->slug,
-                'image' => $article->image,
+                'image' => asset('storage/' . $article->image),
                 'date' => $article->published_at->format('d F, Y'),
                 'comments' => $article->comments_count . ' Comments',
                 'link' => "/article-details/{$article->id}",
             ]);
     }
 
-    public function show($slug)
+    // ✅ NEW: Get single article for details page
+    public function show($id)
     {
-        return Article::where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $article = Article::where('is_published', true)->findOrFail($id);
+
+        return [
+            'id' => $article->id,
+            'title' => $article->title,
+            'image' => asset('storage/' . $article->image),
+            'date' => $article->published_at->format('d F, Y'),
+            'author' => 'Admin', // You can add author field later
+            'content' => $article->content, // Full HTML content from RichEditor
+            'comments_count' => $article->comments_count,
+            'excerpt' => $article->excerpt,
+        ];
     }
 }

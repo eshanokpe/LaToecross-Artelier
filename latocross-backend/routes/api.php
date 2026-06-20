@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/artworks', [ArtworkController::class, 'index']);
 Route::get('/artworks/featured', [ArtworkController::class, 'featured']);
 Route::get('/artworks/{id}', [ArtworkController::class, 'show']);
-
+ 
 // Fashion
 Route::get('/fashion', [FashionController::class, 'index']);
 Route::get('/fashion/featured', [FashionController::class, 'featured']);
