@@ -59,3 +59,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
 php artisan make:filament-user
+
+ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -p 65002 u338147728@147.93.39.5
+
+cd ~/domains/latoecross.com/public_html/latocross
