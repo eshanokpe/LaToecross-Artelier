@@ -63,3 +63,7 @@ php artisan make:filament-user
 ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -p 65002 u338147728@147.93.39.5
 
 cd ~/domains/latoecross.com/public_html/latocross
+php artisan view:clear
+php artisan storage:link 
+
+https://demo.egenslab.com/html/artmart/preview/

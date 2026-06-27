@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
         // $middleware->append(\Fruitcake\Cors\HandleCors::class);
+        $middleware->alias([
+            'check_admin' => \App\Http\Middleware\CheckAdminAccess::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

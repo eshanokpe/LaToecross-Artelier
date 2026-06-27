@@ -19,6 +19,7 @@ class ArtworksTable
             ->columns([
                 ImageColumn::make('image')
                     ->label('Image')
+                    ->disk('public')
                     ->size(80),
 
                 TextColumn::make('title')

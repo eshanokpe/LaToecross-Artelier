@@ -38,6 +38,7 @@ class ManageSiteSettings extends Page implements HasForms
             'about_title'   => Setting::get('about_title'),
             'about_content' => Setting::get('about_content'),
             'about_image'   => Setting::get('about_image') ? [Setting::get('about_image')] : null,
+            'about_image_2'   => Setting::get('about_image_2') ? [Setting::get('about_image_2')] : null,
 
             'facebook_url'  => Setting::get('facebook_url'),
             'twitter_url'   => Setting::get('twitter_url'),
@@ -61,6 +62,13 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->maxLength(255),
 
                                 FileUpload::make('about_image')
+                                    ->label('About Image')
+                                    ->image()
+                                    ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'])
+                                    ->directory('settings')
+                                    ->imageEditor()
+                                    ->columnSpanFull(),
+                                FileUpload::make('about_image_2')
                                     ->label('About Image')
                                     ->image()
                                     ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'])

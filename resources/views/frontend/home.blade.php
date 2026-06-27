@@ -8,3 +8,4 @@
     <livewire:art-section-slider />   
     
 @endsection
+ 

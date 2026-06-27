@@ -35,4 +35,32 @@ class Artwork extends Model
             get: fn () => asset('storage/' . $this->image)
         );
     }
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+        return null;
+    }
+
+    // Automatically delete image when record is deleted
+    protected static function booted()
+    {
+        static::deleting(function ($artwork) {
+            if ($artwork->image && Storage::disk('public')->exists($artwork->image)) {
+                Storage::disk('public')->delete($artwork->image);
+            }
+        });
+
+        // Optional: Delete old image when updating
+        static::updating(function ($artwork) {
+            if ($artwork->isDirty('image') && $artwork->getOriginal('image')) {
+                $oldImage = $artwork->getOriginal('image');
+                if (Storage::disk('public')->exists($oldImage)) {
+                    Storage::disk('public')->delete($oldImage);
+                }
+            }
+        });
+    }
 }

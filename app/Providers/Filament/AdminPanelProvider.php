@@ -33,9 +33,9 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('3.8rem')
             ->brandName('LaToecross Artelier')
             ->homeUrl(url('/'))
-            
-            // ✅ Only keep this valid line to hide top-right menu
             ->userMenu(false)
+            ->maxContentWidth('full')
+            // ❌ REMOVED ->accessCheck() — NOT SUPPORTED IN YOUR VERSION
 
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -57,6 +57,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            // ✅ Add our custom auth check here
             ->authMiddleware([
                 Authenticate::class,
             ]);

@@ -2,25 +2,56 @@
 
 use App\Models\Artwork;
 use Livewire\Component;
+use Livewire\Attributes\Url;
 
 new class extends Component
 {
     public $artworks;
+    
+    #[Url(as: 'category')]
+    public $selectedCategory = 'all';
+
+    public $categories = [
+        'all' => 'All Artworks',
+        'abstract' => 'Abstract Painting',
+        'landscape' => 'Landscape Painting',
+        'mixed_media' => 'Mixed Media Painting',
+        'figure' => 'Figure Painting',
+        'miniature' => 'Miniature',
+    ];
 
     public function mount(): void
     {
-        $this->artworks = Artwork::query()
-            ->latest()
-            ->take(8)
-            ->get();
+        $this->loadArtworks();
+    }
+
+    public function loadArtworks(): void
+    {
+        $query = Artwork::query()->latest();
+
+        if ($this->selectedCategory !== 'all') {
+            $query->where('style', $this->selectedCategory);
+        }
+
+        // Get all artworks for the category (removed take(8) limit)
+        $this->artworks = $query->get();
+        
+        // Dispatch browser event to reinitialize Swiper
+        $this->dispatch('artworks-updated');
+    }
+
+    public function filterByCategory($category): void
+    {
+        $this->selectedCategory = $category;
+        $this->loadArtworks();
     }
 };
 ?>
 
 <div>
-    <div class="home1-general-art-slider-section mb-120">
+    <div class="home1-general-art-slider-section mb-10">
         <div class="container">
-            <div class="row mb-60 align-items-center justify-content-between flex-wrap gap-3 wow animate fadeInDown" data-wow-delay="200ms" data-wow-duration="1500ms">
+            <div class="row mb-10 align-items-center justify-content-between flex-wrap gap-3 wow animate fadeInDown" data-wow-delay="200ms" data-wow-duration="1500ms">
                 <div class="col-lg-8 col-md-9">
                     <div class="section-title">
                         <h3>General Artwork</h3>
@@ -32,20 +63,44 @@ new class extends Component
                 </div>
             </div>
 
+            {{-- Category Filter Tabs --}}
+            <div class="row mb-4 wow animate fadeInUp" data-wow-delay="100ms" data-wow-duration="1500ms">
+                <div class="col-12">
+                    <div class="category-filter-tabs">
+                        <ul class="nav nav-pills justify-content-center gap-2 flex-wrap">
+                            @foreach ($categories as $key => $label)
+                                <li class="nav-item">
+                                    <button 
+                                        wire:click="filterByCategory('{{ $key }}')"
+                                        class="nav-link {{ $selectedCategory === $key ? 'active' : '' }}"
+                                        type="button"
+                                        wire:loading.attr="disabled">
+                                        {{ $label }}
+                                        <span wire:loading wire:target="filterByCategory('{{ $key }}')">
+                                            <span class="spinner-border spinner-border-sm ms-1" role="status"></span>
+                                        </span>
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div class="general-art-slider-wrap wow animate fadeInUp" data-wow-delay="200ms" data-wow-duration="1500ms">
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="swiper home1-generat-art-slider">
+                        <div class="swiper home1-generat-art-slider" wire:key="artwork-slider-{{ $selectedCategory }}">
                             <div class="swiper-wrapper">
                                 @forelse ($artworks as $artwork)
-                                    <div class="swiper-slide">
+                                    <div class="swiper-slide" wire:key="artwork-{{ $artwork->id }}">
                                         <div class="auction-card general-art">
                                             <div class="auction-card-img-wrap">
                                                 <a href="{{ route('artwork.show', $artwork) }}" class="card-img">
                                                     <img
                                                         src="{{ $artwork->image ? asset('storage/' . $artwork->image) : asset('assets/img/home1/general-art-img1.jpg') }}"
                                                         alt="{{ $artwork->title }}"
-                                                        style="width: 100%; height: 280px; object-fit: cover;">
+                                                        style="width: 100%; height: 200px; object-fit: cover;">
                                                 </a>
 
                                                 @unless ($artwork->is_for_sale)
@@ -66,8 +121,8 @@ new class extends Component
                                                 </h6>
                                                 <ul>
                                                     <li>
-                                                        <span>Artist : </span>
-                                                        {{ $artwork->artist }}
+                                                        <span>Category : </span>
+                                                        {{ $categories[$artwork->style] ?? $artwork->style }}
                                                     </li>
                                                     <li>
                                                         <span>Price : </span>
@@ -78,8 +133,8 @@ new class extends Component
                                                         @endif
                                                     </li>
                                                 </ul>
-                                                <a href="{{ route('artwork.show', $artwork) }}" class="bid-btn btn-hover {{ !$artwork->is_for_sale ? 'disabled' : '' }}">
-                                                    <span>Buy Now</span>
+                                                <a href="{{ route('artwork.show', $artwork) }}" class="bid-btn {{ !$artwork->is_for_sale ? 'disabled' : '' }}">
+                                                    <span>Read more</span>
                                                     <strong></strong>
                                                 </a>
                                             </div>
@@ -87,7 +142,9 @@ new class extends Component
                                     </div>
                                 @empty
                                     <div class="swiper-slide">
-                                        <p>No artworks available yet.</p>
+                                        <div class="text-center py-5">
+                                            <p class="text-muted">No artworks available in this category yet.</p>
+                                        </div>
                                     </div>
                                 @endforelse
                             </div>
@@ -109,4 +166,101 @@ new class extends Component
             </div>
         </div>
     </div>
+
+    @script
+    <script>
+        let swiperInstance = null;
+
+        function initSwiper() {
+            // Destroy existing instance if it exists
+            if (swiperInstance) {
+                swiperInstance.destroy(true, true);
+            }
+
+            // Small delay to ensure DOM is updated
+            setTimeout(() => {
+                swiperInstance = new Swiper(".home1-generat-art-slider", {
+                    slidesPerView: 1,
+                    speed: 1500,
+                    spaceBetween: 24,
+                    loop: false,
+                    navigation: {
+                        nextEl: ".generat-art-slider-next",
+                        prevEl: ".generat-art-slider-prev",
+                    },
+                    breakpoints: {
+                        280: {
+                            slidesPerView: 1,
+                        },
+                        386: {
+                            slidesPerView: 1,
+                        },
+                        576: {
+                            slidesPerView: 2,
+                            spaceBetween: 15,
+                        },
+                        768: {
+                            slidesPerView: 2,
+                            spaceBetween: 15,
+                        },
+                        992: {
+                            slidesPerView: 3,
+                            spaceBetween: 20,
+                        },
+                        1200: {
+                            slidesPerView: 4,
+                            spaceBetween: 24,
+                        },
+                        1400: {
+                            slidesPerView: 4,
+                        },
+                    },
+                });
+            }, 100);
+        }
+
+        // Initialize on page load
+        initSwiper();
+
+        // Reinitialize when artworks are updated
+        $wire.on('artworks-updated', () => {
+            initSwiper();
+        });
+    </script>
+    @endscript
 </div>
+
+<!-- Same styling everywhere -->
+<style>
+.category-filter-tabs .nav-pills {
+    flex-wrap: wrap;
+}
+
+.category-filter-tabs .nav-link {
+    padding: 10px 20px;
+    border-radius: 25px;
+    background-color: #f8f9fa;
+    color: #333;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.category-filter-tabs .nav-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.category-filter-tabs .nav-link.active {
+    background-color: #DB2077;
+    color: white;
+    border-color: #DB2077;
+}
+
+/* Optional: Loading state */
+.category-filter-tabs .nav-link[wire\:loading] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>

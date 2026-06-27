@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Artworks\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -64,12 +63,14 @@ class ArtworkForm
                 FileUpload::make('image')
                     ->label('Artwork Image')
                     ->image()
+                    ->disk('public')
                     ->directory('artworks')
                     ->visibility('public')
                     ->required()
                     ->imageResizeMode('cover')
                     ->imagePreviewHeight('250')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->maxSize(5120), // 5MB limit
             ]);
     }
 }

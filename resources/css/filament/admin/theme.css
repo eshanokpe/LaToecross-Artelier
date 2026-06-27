@@ -1,0 +1,3 @@
+:root {
+    --sidebar-width: 16rem; /* default is usually 20rem (256px), reduce as needed */
+}
