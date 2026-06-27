@@ -15,7 +15,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Storage; // ✅ Added for file deletion
+use Illuminate\Support\Facades\Storage;
 
 class ManageSiteSettings extends Page implements HasForms
 {
@@ -31,19 +31,26 @@ class ManageSiteSettings extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'about_title'   => Setting::get('about_title'),
-            'about_content' => Setting::get('about_content'),
-            'about_image'   => Setting::get('about_image') ? [Setting::get('about_image')] : null,
-            'about_image_2' => Setting::get('about_image_2') ? [Setting::get('about_image_2')] : null,
-            'facebook_url'  => Setting::get('facebook_url'),
-            'twitter_url'   => Setting::get('twitter_url'),
-            'instagram_url' => Setting::get('instagram_url'),
-            'linkedin_url'  => Setting::get('linkedin_url'),
-            'youtube_url'   => Setting::get('youtube_url'),
-            'phone_1'       => Setting::get('phone_1'),
-            'phone_2'       => Setting::get('phone_2'),
-            'email_1'       => Setting::get('email_1'),
-            'email_2'       => Setting::get('email_2'),
+            'about_title'              => Setting::get('about_title', 'Discover Our Essence'),
+            'about_content'            => Setting::get('about_content', "We are Akinyemi Olakunle and Akinyemi Omolayo husband and wife, two artists, one shared heartbeat.\n\nOur story began at Yaba College of Technology, where we both trained and graduated. Yabatech gave us more than a certificate. It gave us discipline, technique, and a deep respect for craft. Those studio years shaped how we see art: as work that must be skilled, honest, and alive.\n\nOmolayo is an artist and fashion designer. She thinks in texture, drape, and movement. Every thread she chooses, every fold she creates, finds its way into the art we make together.\n\nOlakunle is an artist and musician. He hears color. Rhythm guides his brush, and every mural, canvas, or abstract carries the echo of a song he was composing while painting.\n\nTogether, we don’t just make art. We build worlds you can step into.\n\nOur hands move across four languages: Realism that honors truth and detail, Impressionism that chases light and mood, Abstract that speaks before words can, and Mixed Media that breaks every rule we were taught.\n\nFrom statement wall murals that transform entire spaces, to one-of-one canvases that start conversations, to wearable fabric art that lets you carry the story — every piece is handmade by us. No prints. No shortcuts. No two are ever the same.\n\nFor collectors and art lovers, this is more than decoration. This is art with a pulse. When you bring a LaToecross piece into your home or space, you bring the laughter we shared while mixing that exact shade of blue. You bring the chord Olakunle played when that brushstroke happened. You bring the fabric Omolayo felt and knew was right.\n\nWe create for people who feel deeply, collect intentionally, and want art that means something. Scroll through our collection. See which piece chooses you. Then let’s create something that has never existed before — something that is only yours.\n\nThis is LaToecross Artelier. Yabatech-trained. Husband and wife. Infinite color. Let’s create magic together ✨"),
+            'about_image'              => Setting::get('about_image') ? [Setting::get('about_image')] : null,
+            'about_image_2'            => Setting::get('about_image_2') ? [Setting::get('about_image_2')] : null,
+            
+            // ✅ New fields with default values
+            'vision'                   => Setting::get('vision', "To be recognised globally as a unique creative force — where art, craft, and heart come together — inspiring people to connect deeply with original, meaningful work that reflects authenticity, skill, and soul."),
+            'mission'                  => Setting::get('mission', "To create handcrafted art and design that blends technical excellence with personal expression. Rooted in our training at Yaba College of Technology, we work across Realism, Impressionism, Abstract, and Mixed Media to produce one-of-a-kind pieces — from canvases and murals to wearable art — made entirely by our hands, with no shortcuts, so every creation carries the story, rhythm, and feeling behind it."),
+            'what_makes_special'       => Setting::get('what_makes_special', "- **A partnership in art**: We are husband and wife — two artists, one shared vision. Our work combines Omolayo’s eye for texture, form, and design with Olakunle’s musical sense of rhythm, colour, and flow.\n\n- **Proven craft**: Trained and educated at Yaba College of Technology, we bring discipline, technique, and deep respect for traditional and contemporary artistic practice to every piece.\n\n- **No mass production**: Every artwork is 100% handmade — no prints, no reproductions, no two pieces are ever identical.\n\n- **Multidisciplinary approach**: We speak four artistic languages — Realism, Impressionism, Abstract, and Mixed Media — giving you work that ranges from faithful detail to bold, emotional expression.\n\n- **Art with a story**: When you own a LaToecross piece, you bring home more than just a visual — you bring the mood, the sound, and the moments we shared while creating it.\n\n- **Made for connection**: We create for those who collect with intention, value originality, and want art that feels alive and personal."),
+            'what_makes_special_image' => Setting::get('what_makes_special_image') ? [Setting::get('what_makes_special_image')] : null,
+
+            'facebook_url'             => Setting::get('facebook_url'),
+            'twitter_url'              => Setting::get('twitter_url'),
+            'instagram_url'            => Setting::get('instagram_url'),
+            'linkedin_url'             => Setting::get('linkedin_url'),
+            'youtube_url'              => Setting::get('youtube_url'),
+            'phone_1'                  => Setting::get('phone_1'),
+            'phone_2'                  => Setting::get('phone_2'),
+            'email_1'                  => Setting::get('email_1'),
+            'email_2'                  => Setting::get('email_2'),
         ]);
     }
 
@@ -57,7 +64,7 @@ class ManageSiteSettings extends Page implements HasForms
                             ->icon(Heroicon::OutlinedInformationCircle)
                             ->schema([
                                 TextInput::make('about_title')
-                                    ->label('Title')
+                                    ->label('About Title')
                                     ->maxLength(255),
 
                                 FileUpload::make('about_image')
@@ -79,8 +86,33 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->columnSpanFull(),
 
                                 Textarea::make('about_content')
-                                    ->label('Content')
+                                    ->label('Full About Content')
+                                    ->rows(10)
+                                    ->columnSpanFull(),
+
+                                // ✅ New Vision, Mission & Special Section
+                                Textarea::make('vision')
+                                    ->label('Our Vision')
+                                    ->rows(4)
+                                    ->columnSpanFull(),
+
+                                Textarea::make('mission')
+                                    ->label('Our Mission')
+                                    ->rows(4)
+                                    ->columnSpanFull(),
+
+                                Textarea::make('what_makes_special')
+                                    ->label('What Makes Us Special')
                                     ->rows(8)
+                                    ->columnSpanFull(),
+
+                                FileUpload::make('what_makes_special_image')
+                                    ->label('What Makes Us Special Image')
+                                    ->image()
+                                    ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'])
+                                    ->directory('settings')
+                                    ->disk('public')
+                                    ->imageEditor()
                                     ->columnSpanFull(),
                             ])
                             ->columns(2),
@@ -116,22 +148,22 @@ class ManageSiteSettings extends Page implements HasForms
                             ->columns(2),
 
                         Tab::make('Site Detail')
-                            ->icon(Heroicon::OutlinedInformationCircle)
+                            ->icon(Heroicon::OutlinedPhone)
                             ->schema([
                                 TextInput::make('phone_1')
-                                    ->label('Phone')
+                                    ->label('Primary Phone')
                                     ->maxLength(255),
 
                                 TextInput::make('phone_2')
-                                    ->label('Phone 2')
+                                    ->label('Secondary Phone')
                                     ->maxLength(255),
 
                                 TextInput::make('email_1')
-                                    ->label('Email')
+                                    ->label('Primary Email')
                                     ->maxLength(255),
 
                                 TextInput::make('email_2')
-                                    ->label('Email 2')
+                                    ->label('Secondary Email')
                                     ->maxLength(255),
                             ])
                             ->columns(2),
@@ -151,7 +183,6 @@ class ManageSiteSettings extends Page implements HasForms
             ? ($data['about_image'][0] ?? null)
             : ($data['about_image'] ?? null);
 
-        // Delete old image 1 if changed
         if ($oldImage1 && $oldImage1 !== $newImage1 && Storage::disk('public')->exists($oldImage1)) {
             Storage::disk('public')->delete($oldImage1);
         }
@@ -162,27 +193,41 @@ class ManageSiteSettings extends Page implements HasForms
             ? ($data['about_image_2'][0] ?? null)
             : ($data['about_image_2'] ?? null);
 
-        // Delete old image 2 if changed
         if ($oldImage2 && $oldImage2 !== $newImage2 && Storage::disk('public')->exists($oldImage2)) {
             Storage::disk('public')->delete($oldImage2);
         }
 
+        // ✅ Process What Makes Us Special Image
+        $oldSpecialImage = Setting::get('what_makes_special_image');
+        $newSpecialImage = is_array($data['what_makes_special_image'] ?? null)
+            ? ($data['what_makes_special_image'][0] ?? null)
+            : ($data['what_makes_special_image'] ?? null);
+
+        if ($oldSpecialImage && $oldSpecialImage !== $newSpecialImage && Storage::disk('public')->exists($oldSpecialImage)) {
+            Storage::disk('public')->delete($oldSpecialImage);
+        }
+
         // Save all settings
-        Setting::set('about_title',   $data['about_title']   ?? null);
-        Setting::set('about_content', $data['about_content'] ?? null);
-        Setting::set('about_image',   $newImage1);
-        Setting::set('about_image_2', $newImage2);
+        Setting::set('about_title',              $data['about_title'] ?? null);
+        Setting::set('about_content',            $data['about_content'] ?? null);
+        Setting::set('about_image',              $newImage1);
+        Setting::set('about_image_2',            $newImage2);
 
-        Setting::set('facebook_url',  $data['facebook_url']  ?? null);
-        Setting::set('twitter_url',   $data['twitter_url']   ?? null);
-        Setting::set('instagram_url', $data['instagram_url'] ?? null);
-        Setting::set('linkedin_url',  $data['linkedin_url']  ?? null);
-        Setting::set('youtube_url',   $data['youtube_url']   ?? null);
+        Setting::set('vision',                   $data['vision'] ?? null);
+        Setting::set('mission',                  $data['mission'] ?? null);
+        Setting::set('what_makes_special',       $data['what_makes_special'] ?? null);
+        Setting::set('what_makes_special_image', $newSpecialImage);
 
-        Setting::set('phone_1',       $data['phone_1']       ?? null);
-        Setting::set('phone_2',       $data['phone_2']       ?? null);
-        Setting::set('email_1',       $data['email_1']       ?? null);
-        Setting::set('email_2',       $data['email_2']       ?? null);
+        Setting::set('facebook_url',             $data['facebook_url'] ?? null);
+        Setting::set('twitter_url',              $data['twitter_url'] ?? null);
+        Setting::set('instagram_url',            $data['instagram_url'] ?? null);
+        Setting::set('linkedin_url',             $data['linkedin_url'] ?? null);
+        Setting::set('youtube_url',              $data['youtube_url'] ?? null);
+
+        Setting::set('phone_1',                  $data['phone_1'] ?? null);
+        Setting::set('phone_2',                  $data['phone_2'] ?? null);
+        Setting::set('email_1',                  $data['email_1'] ?? null);
+        Setting::set('email_2',                  $data['email_2'] ?? null);
 
         Notification::make()
             ->title('Settings saved successfully')
