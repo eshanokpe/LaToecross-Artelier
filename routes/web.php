@@ -9,7 +9,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/blog', [HomeController::class, 'blog'])->name('blog');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-Route::get('/artworks', [HomeController::class, 'contact'])->name('artwork.index');
+Route::get('/artworks', [HomeController::class, 'contact'])->name('artworks.index');
 Route::get('/artworks/show', [HomeController::class, 'contact'])->name('artwork.show');
 
 // Dynamic Category Routes

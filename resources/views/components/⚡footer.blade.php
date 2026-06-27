@@ -143,7 +143,7 @@ new class extends Component
                                     <a href="{{ route('artists-portfolio') }}">Artists Portfolio</a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('artwork.index') }}">Art Catalog</a>
+                                    <a href="{{ route('artworks.index') }}">Art Catalog</a>
                                 </li>
                                 <li>
                                     <a href="#">Departments</a>
