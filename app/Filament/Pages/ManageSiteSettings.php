@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Setting;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -32,14 +33,13 @@ class ManageSiteSettings extends Page implements HasForms
     {
         $this->form->fill([
             'about_title'              => Setting::get('about_title', 'Discover Our Essence'),
-            'about_content'            => Setting::get('about_content', "We are Akinyemi Olakunle and Akinyemi Omolayo husband and wife, two artists, one shared heartbeat.\n\nOur story began at Yaba College of Technology, where we both trained and graduated. Yabatech gave us more than a certificate. It gave us discipline, technique, and a deep respect for craft. Those studio years shaped how we see art: as work that must be skilled, honest, and alive.\n\nOmolayo is an artist and fashion designer. She thinks in texture, drape, and movement. Every thread she chooses, every fold she creates, finds its way into the art we make together.\n\nOlakunle is an artist and musician. He hears color. Rhythm guides his brush, and every mural, canvas, or abstract carries the echo of a song he was composing while painting.\n\nTogether, we don’t just make art. We build worlds you can step into.\n\nOur hands move across four languages: Realism that honors truth and detail, Impressionism that chases light and mood, Abstract that speaks before words can, and Mixed Media that breaks every rule we were taught.\n\nFrom statement wall murals that transform entire spaces, to one-of-one canvases that start conversations, to wearable fabric art that lets you carry the story — every piece is handmade by us. No prints. No shortcuts. No two are ever the same.\n\nFor collectors and art lovers, this is more than decoration. This is art with a pulse. When you bring a LaToecross piece into your home or space, you bring the laughter we shared while mixing that exact shade of blue. You bring the chord Olakunle played when that brushstroke happened. You bring the fabric Omolayo felt and knew was right.\n\nWe create for people who feel deeply, collect intentionally, and want art that means something. Scroll through our collection. See which piece chooses you. Then let’s create something that has never existed before — something that is only yours.\n\nThis is LaToecross Artelier. Yabatech-trained. Husband and wife. Infinite color. Let’s create magic together ✨"),
+            'about_content'            => Setting::get('about_content', "<p>We are Akinyemi Olakunle and Akinyemi Omolayo husband and wife, two artists, one shared heartbeat.</p><p>Our story began at Yaba College of Technology, where we both trained and graduated. Yabatech gave us more than a certificate. It gave us discipline, technique, and a deep respect for craft. Those studio years shaped how we see art: as work that must be skilled, honest, and alive.</p><p>Omolayo is an artist and fashion designer. She thinks in texture, drape, and movement. Every thread she chooses, every fold she creates, finds its way into the art we make together.</p><p>Olakunle is an artist and musician. He hears color. Rhythm guides his brush, and every mural, canvas, or abstract carries the echo of a song he was composing while painting.</p><p>Together, we don’t just make art. We build worlds you can step into.</p><p>Our hands move across four languages: Realism that honors truth and detail, Impressionism that chases light and mood, Abstract that speaks before words can, and Mixed Media that breaks every rule we were taught.</p><p>From statement wall murals that transform entire spaces, to one-of-one canvases that start conversations, to wearable fabric art that lets you carry the story — every piece is handmade by us. No prints. No shortcuts. No two are ever the same.</p><p>For collectors and art lovers, this is more than decoration. This is art with a pulse. When you bring a LaToecross piece into your home or space, you bring the laughter we shared while mixing that exact shade of blue. You bring the chord Olakunle played when that brushstroke happened. You bring the fabric Omolayo felt and knew was right.</p><p>We create for people who feel deeply, collect intentionally, and want art that means something. Scroll through our collection. See which piece chooses you. Then let’s create something that has never existed before — something that is only yours.</p><p>This is LaToecross Artelier. Yabatech-trained. Husband and wife. Infinite color. Let’s create magic together ✨</p>"),
             'about_image'              => Setting::get('about_image') ? [Setting::get('about_image')] : null,
             'about_image_2'            => Setting::get('about_image_2') ? [Setting::get('about_image_2')] : null,
             
-            // ✅ New fields with default values
             'vision'                   => Setting::get('vision', "To be recognised globally as a unique creative force — where art, craft, and heart come together — inspiring people to connect deeply with original, meaningful work that reflects authenticity, skill, and soul."),
             'mission'                  => Setting::get('mission', "To create handcrafted art and design that blends technical excellence with personal expression. Rooted in our training at Yaba College of Technology, we work across Realism, Impressionism, Abstract, and Mixed Media to produce one-of-a-kind pieces — from canvases and murals to wearable art — made entirely by our hands, with no shortcuts, so every creation carries the story, rhythm, and feeling behind it."),
-            'what_makes_special'       => Setting::get('what_makes_special', "- **A partnership in art**: We are husband and wife — two artists, one shared vision. Our work combines Omolayo’s eye for texture, form, and design with Olakunle’s musical sense of rhythm, colour, and flow.\n\n- **Proven craft**: Trained and educated at Yaba College of Technology, we bring discipline, technique, and deep respect for traditional and contemporary artistic practice to every piece.\n\n- **No mass production**: Every artwork is 100% handmade — no prints, no reproductions, no two pieces are ever identical.\n\n- **Multidisciplinary approach**: We speak four artistic languages — Realism, Impressionism, Abstract, and Mixed Media — giving you work that ranges from faithful detail to bold, emotional expression.\n\n- **Art with a story**: When you own a LaToecross piece, you bring home more than just a visual — you bring the mood, the sound, and the moments we shared while creating it.\n\n- **Made for connection**: We create for those who collect with intention, value originality, and want art that feels alive and personal."),
+            'what_makes_special'       => Setting::get('what_makes_special', "<ul><li><strong>A partnership in art:</strong> We are husband and wife — two artists, one shared vision. Our work combines Omolayo’s eye for texture, form, and design with Olakunle’s musical sense of rhythm, colour, and flow.</li><li><strong>Proven craft:</strong> Trained and educated at Yaba College of Technology, we bring discipline, technique, and deep respect for traditional and contemporary artistic practice to every piece.</li><li><strong>No mass production:</strong> Every artwork is 100% handmade — no prints, no reproductions, no two pieces are ever identical.</li><li><strong>Multidisciplinary approach:</strong> We speak four artistic languages — Realism, Impressionism, Abstract, and Mixed Media — giving you work that ranges from faithful detail to bold, emotional expression.</li><li><strong>Art with a story:</strong> When you own a LaToecross piece, you bring home more than just a visual — you bring the mood, the sound, and the moments we shared while creating it.</li><li><strong>Made for connection:</strong> We create for those who collect with intention, value originality, and want art that feels alive and personal.</li></ul>"),
             'what_makes_special_image' => Setting::get('what_makes_special_image') ? [Setting::get('what_makes_special_image')] : null,
 
             'facebook_url'             => Setting::get('facebook_url'),
@@ -85,12 +85,16 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->imageEditor()
                                     ->columnSpanFull(),
 
-                                Textarea::make('about_content')
+                                // ✅ Corrected: use height() instead of rows()
+                                RichEditor::make('about_content')
                                     ->label('Full About Content')
-                                    ->rows(10)
+                                    ->toolbarButtons([
+                                        'bold', 'italic', 'underline', 'strike',
+                                        'bulletList', 'orderedList', 'link', 'blockquote',
+                                        'h2', 'h3', 'paragraph', 'undo', 'redo'
+                                    ])
                                     ->columnSpanFull(),
 
-                                // ✅ New Vision, Mission & Special Section
                                 Textarea::make('vision')
                                     ->label('Our Vision')
                                     ->rows(4)
@@ -101,9 +105,14 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->rows(4)
                                     ->columnSpanFull(),
 
-                                Textarea::make('what_makes_special')
+                                // ✅ Corrected: use height() instead of rows()
+                                RichEditor::make('what_makes_special')
                                     ->label('What Makes Us Special')
-                                    ->rows(8)
+                                    ->toolbarButtons([
+                                        'bold', 'italic', 'underline',
+                                        'bulletList', 'orderedList', 'link', 'blockquote',
+                                        'h3', 'paragraph', 'undo', 'redo'
+                                    ])
                                     ->columnSpanFull(),
 
                                 FileUpload::make('what_makes_special_image')
@@ -197,7 +206,7 @@ class ManageSiteSettings extends Page implements HasForms
             Storage::disk('public')->delete($oldImage2);
         }
 
-        // ✅ Process What Makes Us Special Image
+        // Process What Makes Us Special Image
         $oldSpecialImage = Setting::get('what_makes_special_image');
         $newSpecialImage = is_array($data['what_makes_special_image'] ?? null)
             ? ($data['what_makes_special_image'][0] ?? null)
