@@ -17,15 +17,16 @@ new class extends Component
 
     public function mount(): void
     {
-        $this->aboutTitle = Setting::get('about_title', 'Discover Our Essence');
-        $this->aboutTagline = Setting::get('about_tagline', 'Where Art Meets Passion');
-        $this->establishedYear = Setting::get('established_year', '2020');
-        
-        $this->fullContent = Setting::get('about_content', 'At Latocross Artelier, we are passionate art enthusiasts dedicated to connecting artists and collectors through dynamic and exciting auctions. Our platform brings together a curated selection of contemporary African art, showcasing the rich cultural heritage and creative innovation of the continent\'s most talented artists.');
+        $this->aboutTitle       = Setting::get('about_title', 'Discover Our Essence');
+        $this->aboutTagline     = Setting::get('about_tagline', 'Where Art Meets Passion');
+        $this->establishedYear  = Setting::get('established_year', '2020');
+        $this->fullContent      = Setting::get('about_content', '');
 
-        $this->aboutContent = Str::limit($this->fullContent, 350);
-        $this->aboutImage = Setting::get('about_image');
-        $this->aboutImage2 = Setting::get('about_image_2');
+        // Strip tags only for the short preview, keep full content intact
+        $this->aboutContent = Str::limit(strip_tags($this->fullContent), 350);
+
+        $this->aboutImage       = Setting::get('about_image');
+        $this->aboutImage2      = Setting::get('about_image_2');
     }
 
     public function toggleContent(): void
@@ -40,7 +41,9 @@ new class extends Component
 };
 ?>
 
+{{-- ✅ Single root element wrapping everything --}}
 <div class="about-section-wrapper">
+
     <section class="about-section py-16 md:py-24" style="background: linear-gradient(180deg, #FFFFFF 0%, #faf0f5 100%);">
         <div class="container mx-auto px-4">
             <div class="max-w-6xl mx-auto">
@@ -83,12 +86,12 @@ new class extends Component
                                 <div class="leading-relaxed space-y-4" style="color: #2d1b24;">
                                     @if ($showFullContent)
                                         <div class="transition-all duration-500 ease-in-out">
-                                            {!! nl2br(e($fullContent)) !!}
+                                            {!! nl2br($fullContent) !!}
                                         </div>
                                     @else
                                         <div class="transition-all duration-500 ease-in-out">
-                                            {!! nl2br(e($aboutContent)) !!}
-                                            @if (strlen($fullContent) > 350)
+                                            {{ $aboutContent }}
+                                            @if (strlen(strip_tags($fullContent)) > 350)
                                                 <span style="color: #DB2077;">...</span>
                                             @endif
                                         </div>
@@ -97,7 +100,7 @@ new class extends Component
                             </div>
 
                             <!-- Read More/Less Button -->
-                            @if (strlen($this->fullContent) > 350)
+                            @if (strlen(strip_tags($fullContent)) > 350)
                                 <div class="flex items-center gap-4 pt-2">
                                     <button 
                                         wire:click="toggleContent" 
@@ -304,4 +307,6 @@ new class extends Component
             transform: rotate(180deg);
         }
     </style>
+
 </div>
+{{-- ✅ End of single root element --}}

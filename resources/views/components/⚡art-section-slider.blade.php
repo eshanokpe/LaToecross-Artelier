@@ -59,7 +59,7 @@ new class extends Component
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-2 d-flex justify-content-md-end">
-                    <a href="{{ route('artwork.index') }}" class="view-all-btn">View All</a>
+                    <a href="{{ route('artworks.index') }}" class="view-all-btn">View All</a>
                 </div>
             </div>
 

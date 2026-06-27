@@ -70,7 +70,7 @@ new class extends Component
                             </a>
                             <!-- ✅ Dynamic About Us Content -->
                            <p class="footer-about-text">
-                                {{ Str::limit($settings['about_content'] ?? 'An Art Action Company typically operates in the space of live art, performance, and social practice, often combining elements of activism and community engagement.', 120) }}
+                                {!! Str::limit(nl2br($settings['about_content']) ?? 'An Art Action Company typically operates in the space of live art, performance, and social practice, often combining elements of activism and community engagement.', 120) !!}
 
                                 @if(strlen(trim(strip_tags($settings['about_content'] ?? ''))) > 120)
                                     <a href="{{ route('about') }}" class="read-more-link">Read More</a>
