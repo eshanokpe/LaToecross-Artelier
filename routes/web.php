@@ -29,7 +29,7 @@ Route::prefix('arkworks')->name('artworks.')->group(function () {
 });
 
 // Fashion Routes
-Route::prefix('fashion')->name('fashion.')->group(function () {
+Route::prefix('fashions')->name('fashion.')->group(function () {
     Route::get('/art-wear', function () {
         $category = Category::where('slug', 'art-you-wear')->first();
         return view('fashion.art-wear', ['category' => $category]);
