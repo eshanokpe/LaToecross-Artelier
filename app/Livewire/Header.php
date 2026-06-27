@@ -23,14 +23,16 @@ class Header extends Component
             'label' => 'About',
             'route' => 'about',
             'children' => []
-        ],
+        ], 
         'arkworks' => [
             'label' => 'Arkworks',
             'route' => 'arkworks',
             'children' => [
-                ['label' => 'Original Paintings', 'route' => 'arkworks.paintings'],
-                ['label' => 'Wall Art', 'route' => 'arkworks.wall-art'],
-                ['label' => 'New Arrivals', 'route' => 'arkworks.new-arrivals'],
+                ['label' => 'Abstract Painting', 'route' => 'arkworks.paintings'],
+                ['label' => 'Landscape Painting', 'route' => 'arkworks.wall-art'],
+                ['label' => 'Mixed Media Painting', 'route' => 'arkworks.new-arrivals'],
+                ['label' => 'Figure Painting', 'route' => 'arkworks.new-arrivals'],
+                ['label' => 'Miniature', 'route' => 'arkworks.new-arrivals'],
             ]
         ],
         'fashion' => [
