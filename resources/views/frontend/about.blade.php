@@ -179,14 +179,14 @@
                 <a href="{{ route('contact') }}" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full transition-all duration-300" style="border: 2px solid #ffffff; color: #ffffff;">
                     <span>Get In Touch</span>
                 </a>
+                <a href="{{ route('fashions.index') }}" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl" style="background: #ffffff; color: #DB2077;">
+                    <span>Explore Fashion</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Brand Tagline Footer -->
-    <div class="text-center py-4" style="background: #1a0a0f;">
-        <p class="text-sm tracking-widest" style="color: #ff6b9d; font-family: 'Georgia', serif; letter-spacing: 3px;">
-            ART INSPIRES · FASHION EXPRESSES · DolaAI
-        </p>
-    </div>
 @endsection

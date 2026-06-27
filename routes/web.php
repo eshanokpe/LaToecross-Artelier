@@ -11,6 +11,8 @@ Route::get('/blog', [HomeController::class, 'blog'])->name('blog');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/artworks', [HomeController::class, 'contact'])->name('artworks.index');
 Route::get('/artworks/show', [HomeController::class, 'contact'])->name('artwork.show');
+Route::get('/fashions', [HomeController::class, 'fashions'])->name('fashions.index');
+
 
 // Dynamic Category Routes
 Route::get('/category/{category:slug}', function (Category $category) {

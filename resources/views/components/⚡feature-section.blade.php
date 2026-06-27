@@ -13,17 +13,11 @@ new class extends Component
     public ?string $aboutDescription = null;
     public ?string $establishedYear = null;
 
-    /**
-     * Initialize component with settings data.
-     */
     public function mount(): void
     {
         $this->loadSettings();
     }
 
-    /**
-     * Load all settings from the database.
-     */
     private function loadSettings(): void
     {
         $this->aboutTitle = Setting::get('about_title', 'About Us');
@@ -35,9 +29,6 @@ new class extends Component
         $this->establishedYear = Setting::get('established_year', '2020');
     }
 
-    /**
-     * Get the image URL with fallback to placeholder.
-     */
     public function getImageUrl(): string
     {
         return $this->whatMakesSpecialImage 
@@ -45,98 +36,45 @@ new class extends Component
             : asset('assets/img/placeholder.jpg');
     }
 
-    /**
-     * Check if content exists for display.
-     */
     public function hasContent(string $content): bool
     {
         return !empty($content) && $content !== 'Our vision statement will appear here once configured.';
     }
-}; ?>
+};
+?>
 
-<div class="about-page">
-    {{-- Hero Section --}}
-    <section class="about-hero-section bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-800 text-white py-16 md:py-24 relative overflow-hidden" aria-labelledby="hero-heading">
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-0 left-0 w-64 h-64 bg-purple-500 rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-            <div class="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2"></div>
-        </div>
-        
-        <div class="container mx-auto px-4 relative z-10">
-            <div class="max-w-3xl mx-auto text-center">
-                <span class="inline-block text-purple-300 font-semibold text-sm uppercase tracking-wider mb-4 border border-purple-400/30 px-4 py-1.5 rounded-full">
-                    Since {{ $establishedYear }}
-                </span>
-                <h1 id="hero-heading" class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                    {{ $aboutTitle }}
-                </h1>
-                <p class="text-lg md:text-xl text-purple-100 leading-relaxed max-w-2xl mx-auto">
-                    {{ $aboutDescription }}
-                </p>
-                <div class="mt-8 flex flex-wrap justify-center gap-4">
-                    <a href="#vision-section" class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-6 py-3 rounded-full transition-all duration-300 border border-white/20">
-                        <span>Discover Our Story</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+<div class="feature-section-wrapper">
+   
 
-    {{-- Stats Section --}}
-    <section class="stats-section py-12 bg-white border-b border-gray-100" aria-label="Company statistics">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-                <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-indigo-600">50+</div>
-                    <div class="text-sm text-gray-600 mt-1">Artists Featured</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-indigo-600">200+</div>
-                    <div class="text-sm text-gray-600 mt-1">Artworks</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-indigo-600">1000+</div>
-                    <div class="text-sm text-gray-600 mt-1">Happy Collectors</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl md:text-4xl font-bold text-indigo-600">4.9</div>
-                    <div class="text-sm text-gray-600 mt-1">Rating ★</div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    {{-- Vision & Mission Section --}}
-    <section id="vision-section" class="vision-mission-section py-16 md:py-20 bg-gray-50" aria-labelledby="vision-heading">
+    <!-- Vision & Mission Section -->
+    <section id="vision-section" class="vision-mission-section py-16 md:py-20" style="background: #faf0f5;">
         <div class="container mx-auto px-4">
             <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-12">
-                    <span class="text-indigo-600 font-semibold text-sm uppercase tracking-wider">Our Foundation</span>
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Driven by Purpose</h2>
-                    <div class="w-24 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 mx-auto mt-4"></div>
+                    <span class="font-semibold text-sm uppercase tracking-wider" style="color: #DB2077;">Our Foundation</span>
+                    <h2 class="text-3xl md:text-4xl font-bold mt-2" style="color: #1a0a0f; font-family: 'Georgia', serif;">Driven by Purpose</h2>
+                    <div class="w-24 h-1 mx-auto mt-4 rounded-full" style="background: linear-gradient(90deg, #DB2077, #ff6b9d, #ff9ec4);"></div>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8">
-                    {{-- Vision Card --}}
+                    <!-- Vision Card -->
                     <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 md:p-10 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+                        <div class="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:opacity-75 transition-opacity duration-500" style="background: linear-gradient(135deg, #fce4ec, #f5d6e0);"></div>
                         <div class="relative z-10">
                             <div class="flex items-center gap-4 mb-6">
-                                <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <div class="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #DB2077, #ff6b9d);">
                                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                 </div>
-                                <h3 id="vision-heading" class="text-2xl font-bold text-gray-900">Our Vision</h3>
+                                <h3 id="vision-heading" class="text-2xl font-bold" style="color: #1a0a0f;">Our Vision</h3>
                             </div>
-                            <p class="text-gray-700 leading-relaxed text-lg">
+                            <p class="leading-relaxed text-lg" style="color: #2d1b24;">
                                 {{ $vision }}
                             </p>
-                            <div class="mt-6 flex items-center text-indigo-600 font-medium">
+                            <div class="mt-6 flex items-center font-medium" style="color: #DB2077;">
                                 <span class="text-sm">Guiding our future</span>
                                 <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -145,22 +83,22 @@ new class extends Component
                         </div>
                     </div>
 
-                    {{-- Mission Card --}}
+                    <!-- Mission Card -->
                     <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 md:p-10 relative overflow-hidden">
-                        <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-100 to-pink-100 rounded-full translate-y-1/2 -translate-x-1/2 opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+                        <div class="absolute bottom-0 left-0 w-32 h-32 rounded-full translate-y-1/2 -translate-x-1/2 opacity-50 group-hover:opacity-75 transition-opacity duration-500" style="background: linear-gradient(135deg, #fce4ec, #f5d6e0);"></div>
                         <div class="relative z-10">
                             <div class="flex items-center gap-4 mb-6">
-                                <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <div class="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #ff6b9d, #ff9ec4);">
                                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                     </svg>
                                 </div>
-                                <h3 id="mission-heading" class="text-2xl font-bold text-gray-900">Our Mission</h3>
+                                <h3 id="mission-heading" class="text-2xl font-bold" style="color: #1a0a0f;">Our Mission</h3>
                             </div>
-                            <p class="text-gray-700 leading-relaxed text-lg">
+                            <p class="leading-relaxed text-lg" style="color: #2d1b24;">
                                 {{ $mission }}
                             </p>
-                            <div class="mt-6 flex items-center text-purple-600 font-medium">
+                            <div class="mt-6 flex items-center font-medium" style="color: #DB2077;">
                                 <span class="text-sm">Our daily commitment</span>
                                 <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -173,100 +111,100 @@ new class extends Component
         </div>
     </section>
 
-    {{-- What Makes Us Special Section --}}
+    <!-- What Makes Us Special Section -->
     <section class="special-section py-16 md:py-20 bg-white" aria-labelledby="special-heading">
         <div class="container mx-auto px-4">
             <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-12">
-                    <span class="text-indigo-600 font-semibold text-sm uppercase tracking-wider">What Sets Us Apart</span>
-                    <h2 id="special-heading" class="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Our Unique Value</h2>
-                    <div class="w-24 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 mx-auto mt-4"></div>
+                    <span class="font-semibold text-sm uppercase tracking-wider" style="color: #DB2077;">What Sets Us Apart</span>
+                    <h2 id="special-heading" class="text-3xl md:text-4xl font-bold mt-2" style="color: #1a0a0f; font-family: 'Georgia', serif;">Our Unique Value</h2>
+                    <div class="w-24 h-1 mx-auto mt-4 rounded-full" style="background: linear-gradient(90deg, #DB2077, #ff6b9d, #ff9ec4);"></div>
                 </div>
 
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    {{-- Content Column --}}
+                    <!-- Content Column -->
                     <div class="space-y-6">
                         <div class="prose prose-lg max-w-none">
-                            <div class="text-gray-700 leading-relaxed space-y-4">
-                                {!! $whatMakesSpecial ?: '<p class="text-gray-500 italic">Our unique qualities and advantages will appear here once configured.</p>' !!}
+                            <div class="leading-relaxed space-y-4" style="color: #2d1b24;">
+                                {!! $whatMakesSpecial ?: '<p class="italic" style="color: #6b3b4f;">Our unique qualities and advantages will appear here once configured.</p>' !!}
                             </div>
                         </div>
 
-                        {{-- Feature Points --}}
+                        <!-- Feature Points -->
                         <div class="grid sm:grid-cols-2 gap-4 pt-4">
                             <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <svg class="w-3.5 h-3.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: #fce4ec;">
+                                    <svg class="w-3.5 h-3.5" style="color: #DB2077;" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
-                                <span class="text-sm text-gray-700">Authentic African Art</span>
+                                <span class="text-sm" style="color: #2d1b24;">Authentic African Art</span>
                             </div>
                             <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <svg class="w-3.5 h-3.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: #fce4ec;">
+                                    <svg class="w-3.5 h-3.5" style="color: #DB2077;" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
-                                <span class="text-sm text-gray-700">Curated Collections</span>
+                                <span class="text-sm" style="color: #2d1b24;">Curated Collections</span>
                             </div>
                             <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <svg class="w-3.5 h-3.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: #fce4ec;">
+                                    <svg class="w-3.5 h-3.5" style="color: #DB2077;" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
-                                <span class="text-sm text-gray-700">Direct Artist Support</span>
+                                <span class="text-sm" style="color: #2d1b24;">Direct Artist Support</span>
                             </div>
                             <div class="flex items-start gap-3">
-                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <svg class="w-3.5 h-3.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background: #fce4ec;">
+                                    <svg class="w-3.5 h-3.5" style="color: #DB2077;" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
-                                <span class="text-sm text-gray-700">Global Community</span>
+                                <span class="text-sm" style="color: #2d1b24;">Global Community</span>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Image Column --}}
+                    <!-- Image Column -->
                     <div class="relative">
                         <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-                            <div class="absolute inset-0 bg-gradient-to-tr from-indigo-600/20 to-purple-600/20 mix-blend-overlay"></div>
+                            <div class="absolute inset-0 mix-blend-overlay" style="background: linear-gradient(135deg, rgba(219, 32, 119, 0.2), rgba(255, 107, 157, 0.2));"></div>
                             <img src="{{ $this->getImageUrl() }}"
                                  alt="{{ $aboutTitle ?: 'What Makes Us Special' }}"
                                  class="w-full h-auto object-cover"
                                  loading="lazy">
-                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                                <p class="text-white text-sm font-medium">Celebrating African Artistic Excellence</p>
+                            <div class="absolute bottom-0 left-0 right-0 p-6" style="background: linear-gradient(180deg, transparent, rgba(26, 10, 15, 0.8));">
+                                <p class="text-white text-sm font-medium" style="font-family: 'Georgia', serif;">Celebrating African Artistic Excellence</p>
                             </div>
                         </div>
                         
-                        {{-- Decorative Elements --}}
-                        <div class="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-indigo-200 to-purple-200 rounded-full opacity-50 -z-10"></div>
-                        <div class="absolute -bottom-4 -left-4 w-32 h-32 bg-gradient-to-tr from-purple-200 to-pink-200 rounded-full opacity-50 -z-10"></div>
+                        <!-- Decorative Elements -->
+                        <div class="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-50 -z-10" style="background: linear-gradient(135deg, #fce4ec, #f5d6e0);"></div>
+                        <div class="absolute -bottom-4 -left-4 w-32 h-32 rounded-full opacity-50 -z-10" style="background: linear-gradient(135deg, #fce4ec, #f5d6e0);"></div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- CTA Section --}}
-    <section class="cta-section py-16 bg-gradient-to-r from-indigo-900 to-purple-900 text-white" aria-label="Call to action">
+    <!-- CTA Section -->
+    <section class="cta-section py-16 text-white" style="background: linear-gradient(135deg, #1a0a0f 0%, #DB2077 40%, #ff6b9d 70%, #ff9ec4 100%);">
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Discover Amazing Art?</h2>
-                <p class="text-lg text-purple-200 mb-8 max-w-2xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: 'Georgia', serif;">Ready to Discover Amazing Art?</h2>
+                <p class="text-lg mb-8 max-w-2xl mx-auto" style="color: #ffd6e8;">
                     Join our community of art lovers and collectors. Explore curated collections from Africa's most talented artists.
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
-                    <a href="/artworks" class="inline-flex items-center gap-2 bg-white text-indigo-900 hover:bg-gray-100 px-8 py-3.5 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl">
+                    <a href="/artworks" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl" style="background: #ffffff; color: #DB2077;">
                         <span>Browse Artworks</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                         </svg>
                     </a>
-                    <a href="/contact" class="inline-flex items-center gap-2 border border-white/30 hover:border-white/60 px-8 py-3.5 rounded-full transition-all duration-300">
+                    <a href="/contact" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full transition-all duration-300" style="border: 2px solid #ffffff; color: #ffffff;">
                         <span>Contact Us</span>
                     </a>
                 </div>
@@ -276,8 +214,7 @@ new class extends Component
 </div>
 
 <style>
-/* Professional Styling Enhancements */
-.about-page {
+.feature-section-wrapper {
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 }
 
@@ -285,17 +222,14 @@ new class extends Component
     max-width: 1280px;
 }
 
-/* Smooth scrolling */
 html {
     scroll-behavior: smooth;
 }
 
-/* Card hover effects */
 .group:hover .group-hover\:shadow-2xl {
     transform: translateY(-4px);
 }
 
-/* Gradient text utilities */
 .bg-gradient-to-r {
     background-size: 200% 200%;
     animation: gradientShift 15s ease infinite;
@@ -307,9 +241,8 @@ html {
     100% { background-position: 0% 50%; }
 }
 
-/* Prose styling */
 .prose h1, .prose h2, .prose h3, .prose h4 {
-    color: #1a1a1a;
+    color: #1a0a0f;
 }
 
 .prose p {
@@ -325,9 +258,8 @@ html {
     margin-bottom: 0.5rem;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
-    .about-hero-section {
+    .feature-hero-section {
         padding: 4rem 1.5rem;
     }
     
