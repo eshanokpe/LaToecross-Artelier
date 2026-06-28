@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Artwork; 
+use App\Models\Fashion; 
 use App\Models\Article;
 
 class HomeController extends Controller
@@ -46,6 +47,43 @@ class HomeController extends Controller
     public function about()
     {
         return view('frontend.about');
+    }
+
+    public function fashions()
+    {
+        $fashion = Fashion::all();
+        return view('frontend.fashions.fashions', compact('fashion'));
+    }
+
+    public function FashionShow($id)
+    {
+       $fashion = Fashion::with('category')->findOrFail($id);
+        
+        // Get related fashions (same category, excluding current)
+        $relatedFashions = Fashion::where('id', '!=', $fashion->id)
+            ->where('category', $fashion->category)
+            ->where('is_for_sale', true)
+            ->take(4)
+            ->get();
+
+        // Get all categories for the filter
+        $categories = [
+            'all' => 'All Fashion',
+            'men' => "Men's Wear",
+            'ladies' => 'Ladies Wear',
+            'unisex' => 'Unisex',
+            'kids' => "Kids Wear",
+            'painting_on_wear' => 'Painting on Wears',
+            'fabric' => 'Fabric',
+            'asooke' => 'Asooke',
+            'etc' => 'Others',
+        ];
+
+        return view('frontend.fashions.fashion-details', compact(
+            'fashion', 
+            'relatedFashions', 
+            'categories'
+        ));
     }
 
     public function artworks()

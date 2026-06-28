@@ -67,3 +67,5 @@ php artisan view:clear
 php artisan storage:link 
 
 https://demo.egenslab.com/html/artmart/preview/
+
+php artisan make:livewire artworks-details

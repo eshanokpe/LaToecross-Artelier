@@ -21,6 +21,7 @@ class Fashion extends Model
         'is_for_sale' => 'boolean',
         'is_featured' => 'boolean',
         'price' => 'decimal:2',
+        'images' => 'array',
     ];
 
     protected function imageUrl(): Attribute
@@ -28,5 +29,12 @@ class Fashion extends Model
         return Attribute::make(
             get: fn () => asset('storage/' . $this->image)
         );
+    }
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+        return null;
     }
 }

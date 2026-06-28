@@ -14,7 +14,6 @@ class ArticleInfolist
         return $schema
             ->components([
                 TextEntry::make('title'),
-                TextEntry::make('slug'),
                 TextEntry::make('excerpt')
                     ->placeholder('-')
                     ->columnSpanFull(),
@@ -23,6 +22,8 @@ class ArticleInfolist
                 ImageEntry::make('image'),
                 TextEntry::make('published_at')
                     ->date(),
+                TextEntry::make('views')
+                    ->numeric(),
                 TextEntry::make('comments_count')
                     ->numeric(),
                 IconEntry::make('is_published')

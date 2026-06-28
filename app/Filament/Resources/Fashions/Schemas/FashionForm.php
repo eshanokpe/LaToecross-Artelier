@@ -24,10 +24,14 @@ class FashionForm
                 Select::make('category')
                     ->label('Category')
                     ->options([
-                        'wearable_art' => 'Wearable Art',
-                        'dress' => 'Dress',
-                        'accessory' => 'Accessory',
-                        'textile' => 'Textile Art',
+                        'men'               => 'Men\'s Wear',
+                        'ladies'            => 'Ladies Wear',
+                        'unisex'            => 'Unisex',
+                        'kids'              => 'Kids Wear',
+                        'painting_on_wear'  => 'Painting on Wears',
+                        'fabric'            => 'Fabric',
+                        'asooke'            => 'Asooke',
+                        'etc'               => 'Others',
                     ])
                     ->required()
                     ->columnSpanFull(),

@@ -19,13 +19,14 @@ class ArticlesTable
             ->columns([
                 TextColumn::make('title')
                     ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
                 ImageColumn::make('image'),
                 TextColumn::make('published_at')
                     ->date()
                     ->sortable(),
                 TextColumn::make('comments_count')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('views')
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_published')

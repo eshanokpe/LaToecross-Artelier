@@ -25,7 +25,7 @@ class ArtworkEnquiryResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $navigationLabel = 'Artwork Enquiries';
-
+ 
     protected static ?string $modelLabel = 'Artwork Enquiry';
 
     protected static ?string $pluralModelLabel = 'Artwork Enquiries';

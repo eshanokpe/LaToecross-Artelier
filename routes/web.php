@@ -2,6 +2,7 @@
 
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FashionController;
 use App\Http\Controllers\HomeController;
 
 // Home Route
@@ -13,8 +14,10 @@ Route::get('/article-details/{slug}', [HomeController::class, 'articleShow'])->n
 
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::get('/artworks/{id}', [HomeController::class, 'artworkShow'])->name('artwork.show');
-Route::get('/fashions', [HomeController::class, 'fashions'])->name('fashions.index');
 
+Route::get('/fashions', [FashionController::class, 'index'])->name('fashions.index');
+Route::get('/fashions/{id}', [FashionController::class, 'show'])->name('fashion.show');
+Route::get('/fashions/category/{category}', [FashionController::class, 'byCategory'])->name('fashions.category');
 
 // Dynamic Category Routes
 Route::get('/category/{category:slug}', function (Category $category) {
