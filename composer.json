@@ -35,6 +35,14 @@
         }
     },
     "scripts": {
+        "post-install-cmd": [
+            "@php -r \"$l='/home/u338147728/domains/latoecross.com/public_html/latocross/storage/app/public'; $t='/home/u338147728/persistent_storage/uploads'; if (is_link($l)) { if (readlink($l) !== $t) { unlink($l); symlink($t, $l); } } elseif (is_dir($l)) { @rmdir($l); symlink($t, $l); } else { symlink($t, $l); }\""
+        ],
+        "post-update-cmd": [
+            "@php artisan storage:link --force",
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
@@ -54,9 +62,6 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
-        ],
-        "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
