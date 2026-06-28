@@ -84,11 +84,11 @@
             <!-- Navigation Right -->
             <div class="nav-right">
                 <!-- Dark/Light Switch -->
-                <div class="dark-light-switch d-lg-none d-block" 
+                <!-- <div class="dark-light-switch d-lg-none d-block" 
                      @click="darkMode = !darkMode; $wire.toggleDarkMode()">
                     <i class="bi bi-brightness-low-fill" 
                        x-bind:class="{ 'bi-brightness-low-fill': !darkMode, 'bi-moon-fill': darkMode }"></i>
-                </div>
+                </div> -->
 
                 <!-- Mobile Menu Button -->
                 <div class="sidebar-button mobile-menu-btn" @click="mobileMenuOpen = !mobileMenuOpen">
