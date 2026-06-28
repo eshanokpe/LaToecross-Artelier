@@ -51,7 +51,7 @@ new class extends Component
         <div class="container mx-auto px-4">
             <div class="max-w-7xl mx-auto">
                 <!-- Section Header -->
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-10">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-12">
                     <div class="section-title">
                         <span class="inline-block font-semibold text-sm uppercase tracking-wider px-4 py-1.5 rounded-full" style="color: #DB2077; background: #fce4ec;">
                             Featured Collection
@@ -64,7 +64,7 @@ new class extends Component
                         </p>
                     </div>
                     <a href="{{ route('artworks.index') }}" 
-                       class="group inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
+                       class="group inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
                        style="color: #DB2077; background: #fce4ec;">
                         <span>View All</span>
                         <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,13 +74,13 @@ new class extends Component
                 </div>
 
                 <!-- Category Filter Tabs -->
-                <div class="category-filter-tabs mb-8 overflow-x-auto">
+                <div class="category-filter-tabs mb-10 overflow-x-auto">
                     <ul class="flex gap-2 flex-nowrap md:flex-wrap justify-center md:justify-start">
                         @foreach ($categories as $key => $label)
                             <li class="flex-shrink-0">
                                 <button 
                                     wire:click="filterByCategory('{{ $key }}')"
-                                    class="nav-link px-4 py-2.5 rounded-full font-medium transition-all duration-300 whitespace-nowrap text-sm"
+                                    class="nav-link px-5 py-2.5 rounded-full font-medium transition-all duration-300 whitespace-nowrap text-sm"
                                     style="{{ $selectedCategory === $key 
                                         ? 'background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; box-shadow: 0 4px 15px rgba(219, 32, 119, 0.3); transform: scale(1.02);' 
                                         : 'background: #faf0f5; color: #6b3b4f; border: 2px solid transparent;' }}"
@@ -113,19 +113,19 @@ new class extends Component
                                             <!-- Status Badges -->
                                             <div class="absolute top-3 left-3 flex flex-col gap-1.5">
                                                 @if($artwork->is_featured)
-                                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider"
+                                                    <span class="px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider"
                                                           style="background: #fce4ec; color: #DB2077; box-shadow: 0 2px 8px rgba(219, 32, 119, 0.2);">
                                                         ★ Featured
                                                     </span>
                                                 @endif
                                                 @unless ($artwork->is_for_sale)
-                                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider" 
+                                                    <span class="px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider" 
                                                           style="background: #1a0a0f; color: white; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
                                                         Sold Out
                                                     </span>
                                                 @endunless
                                                 @if($artwork->is_for_sale)
-                                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider"
+                                                    <span class="px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider"
                                                           style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; box-shadow: 0 2px 8px rgba(219, 32, 119, 0.2);">
                                                         For Sale
                                                     </span>
@@ -140,34 +140,41 @@ new class extends Component
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                                                 </svg>
                                             </button>
+
+                                            <!-- Quick View Overlay -->
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                                <span class="px-4 py-2 rounded-full text-xs font-medium text-white bg-white/20 backdrop-blur-sm">
+                                                    Quick View
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <!-- Content Container -->
                                         <div class="auction-card-content p-4 flex-1 flex flex-col">
-                                            <h6 class="text-base font-bold line-clamp-1 mb-1" style="color: #1a0a0f;">
-                                                <a href="{{ route('artwork.show', $artwork) }}" class="hover:underline">
+                                            <h6 class="text-base font-bold line-clamp-1 mb-2" style="color: #1a0a0f;">
+                                                <a href="{{ route('artwork.show', $artwork) }}" class="hover:text-DB2077 transition-colors">
                                                     {{ $artwork->title }}
                                                 </a>
                                             </h6>
                                             
-                                            <ul class="space-y-1 text-sm flex-1">
-                                                <li class="flex justify-between">
+                                            <ul class="space-y-1.5 text-sm flex-1">
+                                                <li class="flex justify-between items-center">
                                                     <span style="color: #6b3b4f;">Category</span>
                                                     <span style="color: #1a0a0f; font-weight: 500;">
                                                         {{ $categories[$artwork->style] ?? $artwork->style }}
                                                     </span>
                                                 </li>
                                                 @if($artwork->medium)
-                                                    <li class="flex justify-between">
+                                                    <li class="flex justify-between items-center">
                                                         <span style="color: #6b3b4f;">Medium</span>
                                                         <span style="color: #1a0a0f; font-weight: 500; font-size: 0.75rem;" class="truncate max-w-[100px]">
                                                             {{ $artwork->medium }}
                                                         </span>
                                                     </li>
                                                 @endif
-                                                <li class="flex justify-between">
+                                                <li class="flex justify-between items-center pt-1 border-t" style="border-color: #fce4ec;">
                                                     <span style="color: #6b3b4f;">Price</span>
-                                                    <span style="color: #DB2077; font-weight: 700;">
+                                                    <span style="color: #DB2077; font-weight: 700; font-size: 1.1rem;">
                                                         @if ($artwork->is_for_sale && $artwork->price)
                                                             ₦{{ number_format($artwork->price, 2) }}
                                                         @else
@@ -178,7 +185,7 @@ new class extends Component
                                             </ul>
 
                                             <a href="{{ route('artwork.show', $artwork) }}" 
-                                               class="bid-btn block w-full text-center py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-[1.02] mt-3 text-sm"
+                                               class="bid-btn block w-full text-center py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-[1.02] mt-4 text-sm"
                                                style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                                 <span>View Details</span>
                                             </a>
@@ -256,11 +263,8 @@ new class extends Component
                         1280: { slidesPerView: 4, spaceBetween: 24 },
                         1536: { slidesPerView: 4, spaceBetween: 24 },
                     },
-                    // Auto height for dynamic content
                     autoHeight: true,
-                    // Smooth transition
                     effect: 'slide',
-                    // Keyboard navigation
                     keyboard: {
                         enabled: true,
                         onlyInViewport: true,
@@ -269,14 +273,12 @@ new class extends Component
             }, 150);
         }
 
-        // Initialize on page load
         document.addEventListener('DOMContentLoaded', initSwiper);
 
-        // Reinitialize when artworks are updated
         $wire.on('artworks-updated', () => {
             initSwiper();
         });
-    </script>
+    </script> 
     @endscript
 
     <style>
@@ -285,7 +287,7 @@ new class extends Component
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1280px;
         }
 
         /* Category Filter Tabs */
@@ -316,7 +318,6 @@ new class extends Component
             pointer-events: none;
         }
 
-        /* Mobile responsive */
         @media (max-width: 640px) {
             .category-filter-tabs ul {
                 justify-content: flex-start;
@@ -329,7 +330,6 @@ new class extends Component
             }
         }
 
-        /* Custom scrollbar for filter tabs on mobile */
         .category-filter-tabs {
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -384,11 +384,6 @@ new class extends Component
             transform: scale(0.95);
         }
 
-        /* Badge animations */
-        .batch span {
-            animation: slideDown 0.5s ease-out;
-        }
-
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -400,7 +395,10 @@ new class extends Component
             }
         }
 
-        /* Empty state */
+        .batch span {
+            animation: slideDown 0.5s ease-out;
+        }
+
         .text-center svg {
             animation: float 3s ease-in-out infinite;
         }
@@ -410,22 +408,18 @@ new class extends Component
             50% { transform: translateY(-10px); }
         }
 
-        /* Print styles */
+        /* Quick View Overlay */
+        .quick-view-overlay {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+        }
+
         @media print {
-            .slider-btn-grp {
-                display: none !important;
-            }
-            
-            .category-filter-tabs {
-                display: none !important;
-            }
-            
-            .wishlist {
+            .slider-btn-grp, .category-filter-tabs, .wishlist {
                 display: none !important;
             }
         }
 
-        /* Focus styles for accessibility */
         button:focus-visible,
         a:focus-visible {
             outline: 2px solid #DB2077;
@@ -433,7 +427,6 @@ new class extends Component
             border-radius: 4px;
         }
 
-        /* Truncate text */
         .line-clamp-1 {
             display: -webkit-box;
             -webkit-line-clamp: 1;
@@ -445,6 +438,11 @@ new class extends Component
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        /* Smooth transitions for price */
+        .price-value {
+            transition: all 0.3s ease;
         }
     </style>
 </div>

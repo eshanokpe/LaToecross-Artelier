@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Art Catalog - Latocross Artelier')
+@section('title', 'Fashion Catalog - Latocross Artelier')
 @section('meta_description', 'Explore our curated collection of contemporary African art at Latocross Artelier. Discover unique artworks from talented artists.')
 
 @section('content')
