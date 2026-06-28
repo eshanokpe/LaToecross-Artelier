@@ -238,14 +238,14 @@ new class extends Component
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" 
+                                    <a href="{{ route('support') }}" 
                                        class="text-sm transition-all duration-300 hover:pl-2 inline-block"
                                        style="color: #cdb4c8;">
                                         <span style="color: #DB2077;">›</span> Support Center
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" 
+                                    <a href="{{ route('terms') }}" 
                                        class="text-sm transition-all duration-300 hover:pl-2 inline-block"
                                        style="color: #cdb4c8;">
                                         <span style="color: #DB2077;">›</span> Terms & Conditions
@@ -344,19 +344,19 @@ new class extends Component
                 <div class="footer-bottom-right">
                     <ul class="flex flex-wrap items-center gap-4 text-xs">
                         <li>
-                            <a href="#" class="hover:underline" style="color: #6b3b4f;">
+                            <a href="{{ route('support') }}" class="hover:underline" style="color: #6b3b4f;">
                                 Support Center
                             </a>
                         </li>
                         <li class="opacity-30" style="color: #6b3b4f;">|</li>
                         <li>
-                            <a href="#" class="hover:underline" style="color: #6b3b4f;">
+                            <a href="{{ route('terms') }}" class="hover:underline" style="color: #6b3b4f;">
                                 Terms & Conditions
                             </a>
                         </li>
                         <li class="opacity-30" style="color: #6b3b4f;">|</li>
                         <li>
-                            <a href="#" class="hover:underline" style="color: #6b3b4f;">
+                            <a href="{{ route('privacy') }}" class="hover:underline" style="color: #6b3b4f;">
                                 Privacy Policy
                             </a>
                         </li>

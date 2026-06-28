@@ -76,6 +76,7 @@ Route::get('/how-to-sell', function () {
 
 
 Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
+Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
 
 Route::get('/support', function () {
     return view('support');
@@ -85,6 +86,4 @@ Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
 
-Route::get('/privacy', function () {
-    return view('privacy');
-})->name('privacy');
+

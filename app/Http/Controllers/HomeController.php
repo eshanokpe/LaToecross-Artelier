@@ -24,6 +24,11 @@ class HomeController extends Controller
         return view('frontend.faq');
     }
 
+    public function privacy()
+    {
+        return view('frontend.privacy');
+    }
+
     public function blog()
     {
         return view('frontend.blog.blog');
