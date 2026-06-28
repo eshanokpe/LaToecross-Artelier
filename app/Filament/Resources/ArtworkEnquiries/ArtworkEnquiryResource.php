@@ -30,7 +30,7 @@ class ArtworkEnquiryResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Artwork Enquiries';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Art Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Management';
 
     protected static ?int $navigationSort = 10;
 

@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\Articles\Tables;
+namespace App\Filament\Resources\Faqs\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class ArticlesTable
+class FaqsTable
 {
     public static function configure(Table $table): Table
     {
@@ -29,19 +28,14 @@ class ArticlesTable
                     ->extraAttributes([
                         'style' => 'font-weight: bold; color: #6b3b4f;'
                     ]),
-                TextColumn::make('title')
+                TextColumn::make('question')
                     ->searchable(),
-                ImageColumn::make('image'),
-                TextColumn::make('published_at')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('comments_count')
+                TextColumn::make('category')
+                    ->searchable(),
+                TextColumn::make('sort_order')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('views')
-                    ->numeric()
-                    ->sortable(),
-                IconColumn::make('is_published')
+                IconColumn::make('is_active')
                     ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()

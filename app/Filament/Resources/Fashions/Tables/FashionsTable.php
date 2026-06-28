@@ -17,6 +17,18 @@ class FashionsTable
     {
         return $table
             ->columns([
+                TextColumn::make('index')
+                    ->label('#')
+                    ->getStateUsing(function ($rowLoop) {
+                        return $rowLoop->index + 1;
+                    })
+                    ->sortable(false)
+                    ->toggleable(false)
+                    ->width(50)
+                    ->alignCenter()
+                    ->extraAttributes([
+                        'style' => 'font-weight: bold; color: #6b3b4f;'
+                    ]),
                 ImageColumn::make('image')
                     ->label('Image')
                     ->size(80),

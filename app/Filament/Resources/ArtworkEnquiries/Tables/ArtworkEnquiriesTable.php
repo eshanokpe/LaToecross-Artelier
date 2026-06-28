@@ -26,12 +26,18 @@ class ArtworkEnquiriesTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->numeric()
-                    ->label('ID')
-                    ->sortable()
-                    ->toggleable()
-                    ->searchable(),
+                TextColumn::make('index')
+                    ->label('#')
+                    ->getStateUsing(function ($rowLoop) {
+                        return $rowLoop->index + 1;
+                    })
+                    ->sortable(false)
+                    ->toggleable(false)
+                    ->width(50)
+                    ->alignCenter()
+                    ->extraAttributes([
+                        'style' => 'font-weight: bold; color: #6b3b4f;'
+                    ]),
                 TextColumn::make('artwork.title')
                     ->label('Artwork')
                     ->sortable()
