@@ -224,7 +224,7 @@ new class extends Component
                                 </div>
                             @endif
                         </div>
-                         <!-- Success Message -->
+                        <!-- Success Message -->
                         @if (session('enquiry_success'))
                             <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #f0fdf4; border: 1px solid #86efac;">
                                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #22c55e;" fill="currentColor" viewBox="0 0 20 20">

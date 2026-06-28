@@ -74,9 +74,8 @@ Route::get('/how-to-sell', function () {
     return view('how-to-sell');
 })->name('how-to-sell');
 
-Route::get('/faq', function () {
-    return view('faq');
-})->name('faq');
+
+Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
 
 Route::get('/support', function () {
     return view('support');

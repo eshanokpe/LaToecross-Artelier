@@ -185,6 +185,18 @@ new class extends Component
                                 </div>
                             @endif
                         </div>
+                        <!-- Success Message -->
+                        @if (session('enquiry_success'))
+                            <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #f0fdf4; border: 1px solid #86efac;">
+                                <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #22c55e;" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-medium" style="color: #166534;">Success!</p>
+                                    <p class="text-sm" style="color: #15803d;">{{ session('enquiry_success') }}</p>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Enquiry Button -->
                         @if($fashion->is_for_sale)
