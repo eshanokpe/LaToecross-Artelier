@@ -52,7 +52,7 @@ return [
         'ses' => [
             'transport' => 'ses',
         ],
-
+        'support_email' => env('MAIL_SUPPORT_ADDRESS', 'support@latocross.com'),
         'postmark' => [
             'transport' => 'postmark',
             // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),

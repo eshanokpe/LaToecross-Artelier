@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Artwork; 
 use App\Models\Fashion; 
 use App\Models\Article;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SupportTicketMail;
+use App\Models\SupportTicket;
 
 class HomeController extends Controller
 {
@@ -48,10 +51,27 @@ class HomeController extends Controller
         ]);
 
         // Store support ticket in database
-        SupportTicket::create($validated);
+        $ticket = SupportTicket::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+            'status' => 'pending',
+            'is_read' => false,
+        ]);
 
-        // Send notification email
-        Mail::to('support@latocross.com')->send(new SupportTicketMail($validated));
+        // Send email notification to support team
+        try {
+            Mail::to(config('mail.support_email', 'support@latocross.com'))
+                ->send(new SupportTicketMail($validated));
+
+            // Optional: Send confirmation email to customer
+            // Mail::to($validated['email'])->send(new SupportTicketConfirmationMail($validated));
+        } catch (\Exception $e) {
+            // Log error but don't fail
+            \Log::error('Failed to send support ticket email: ' . $e->getMessage());
+        }
 
         return back()->with('support_success', 'Your support ticket has been submitted. Our team will get back to you within 24 hours.');
     }
