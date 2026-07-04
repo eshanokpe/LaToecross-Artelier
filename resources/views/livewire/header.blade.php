@@ -10,8 +10,8 @@
             <!-- Logo -->
             <div class="header-logo">
                 <a href="{{ route('home') }}" wire:navigate>
-                    <img alt="image" class="img-fluid light" src="{{ asset('images/logo.png') }}" style="height:100px">
-                    <img alt="image" class="img-fluid dark" src="{{ asset('images/logo.png') }}" style="height:100px">
+                    <img alt="image" class="img-fluid light logo-img" src="{{ asset('images/logo.png') }}" style="height: 80px; width: auto;">
+                    <img alt="image" class="img-fluid dark logo-img" src="{{ asset('images/logo.png') }}" style="height: 80px; width: auto;">
                 </a>
             </div>
 
@@ -20,8 +20,8 @@
                 <!-- Mobile Logo -->
                 <div class="mobile-logo-area d-lg-none d-flex justify-content-center">
                     <a href="{{ route('home') }}" class="mobile-logo-wrap" wire:navigate>
-                        <img alt="image" class="img-fluid light" src="{{ asset('images/logo.png') }}" style="height:100px">
-                        <img alt="image" class="img-fluid dark" src="{{ asset('images/logo.png') }}" style="height:100px">
+                        <img alt="image" class="img-fluid light mobile-logo-img" src="{{ asset('images/logo.png') }}" style="height: 60px; width: auto;">
+                        <img alt="image" class="img-fluid dark mobile-logo-img" src="{{ asset('images/logo.png') }}" style="height: 60px; width: auto;">
                     </a>
                 </div>
  
@@ -83,13 +83,7 @@
 
             <!-- Navigation Right -->
             <div class="nav-right">
-                <!-- Dark/Light Switch -->
-                <!-- <div class="dark-light-switch d-lg-none d-block" 
-                     @click="darkMode = !darkMode; $wire.toggleDarkMode()">
-                    <i class="bi bi-brightness-low-fill" 
-                       x-bind:class="{ 'bi-brightness-low-fill': !darkMode, 'bi-moon-fill': darkMode }"></i>
-                </div> -->
-
+               
                 <!-- Mobile Menu Button -->
                 <div class="sidebar-button mobile-menu-btn" @click="mobileMenuOpen = !mobileMenuOpen">
                     <span></span>
@@ -106,6 +100,67 @@
 
     @push('styles')
     <style>
+        /* ============================================
+           LOGO RESPONSIVE SIZES
+        ============================================ */
+        
+        /* Desktop Logo - Default */
+        .logo-img {
+            height: 80px;
+            width: auto;
+            transition: height 0.3s ease;
+        }
+        
+        /* Mobile Menu Logo */
+        .mobile-logo-img {
+            height: 60px;
+            width: auto;
+        }
+        
+        /* Tablet */
+        @media (max-width: 991px) {
+            .logo-img {
+                height: 60px;
+            }
+        }
+        
+        /* Mobile */
+        @media (max-width: 767px) {
+            .logo-img {
+                height: 50px;
+            }
+            
+            .mobile-logo-img {
+                height: 50px;
+            }
+        }
+        
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .logo-img {
+                height: 40px;
+            }
+            
+            .mobile-logo-img {
+                height: 45px;
+            }
+        }
+        
+        /* Extra Small Mobile */
+        @media (max-width: 375px) {
+            .logo-img {
+                height: 35px;
+            }
+            
+            .mobile-logo-img {
+                height: 40px;
+            }
+        }
+        
+        /* ============================================
+           EXISTING STYLES
+        ============================================ */
+        
         .sub-menu {
             display: none;
         }
@@ -195,7 +250,7 @@
                 top: 0;
                 left: 0;
                 right: 0;
-                padding: 20px;
+                padding: 15px 20px;
                 background: #fff;
                 border-bottom: 1px solid #eee;
             }
@@ -233,6 +288,22 @@
             .sub-menu li a {
                 padding: 8px 20px !important;
             }
+        }
+        
+        /* Header Logo Container Adjustments */
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-logo a {
+            display: inline-block;
+            line-height: 0;
+        }
+        
+        .mobile-logo-wrap {
+            display: inline-block;
+            line-height: 0;
         }
     </style>
     @endpush
