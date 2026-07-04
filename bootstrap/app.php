@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'check_admin' => \App\Http\Middleware\CheckAdminAccess::class,
         ]);
+         $middleware->web(append: [
+            \App\Http\Middleware\TrackVisitors::class,
+        ]);
+        
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

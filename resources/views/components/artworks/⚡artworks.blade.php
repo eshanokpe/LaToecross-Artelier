@@ -31,8 +31,10 @@ new class extends Component
     // Categories
     public array $categories = [
         'all' => 'All Artworks',
+        'wall_painting' => 'Wall Painting',
         'abstract' => 'Abstract Painting',
         'landscape' => 'Landscape Painting',
+        'interior_painting' => 'Interior Painting',
         'mixed_media' => 'Mixed Media Painting',
         'figure' => 'Figure Painting',
         'miniature' => 'Miniature',
@@ -329,10 +331,28 @@ new class extends Component
                                         
                                         <div class="space-y-1 mt-2 text-sm">
                                             <p>
-                                                <span style="color: #6b3b4f;">Category:</span>
-                                                <span style="color: #1a0a0f; font-weight: 500;">
-                                                    {{ ucfirst(str_replace('_', ' ', $artwork->style)) }}
-                                                </span>
+                                                <li class="flex justify-between items-center">
+                                                    <span style="color: #6b3b4f;">Category</span>
+                                                    @php
+                                                        $categoryColors = [
+                                                            'wall_painting' => '#E91E63',
+                                                            'abstract' => '#9C27B0', 
+                                                            'landscape' => '#4CAF50',
+                                                            'interior_painting' => '#FF9800',
+                                                            'mixed_media' => '#2196F3',
+                                                            'figure' => '#F44336',
+                                                            'miniature' => '#795548',
+                                                            'default' => '#6b3b4f'
+                                                        ];
+                                                        $categoryColor = $categoryColors[$artwork->style] ?? $categoryColors['default'];
+                                                    @endphp
+
+                                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium"
+                                                        style="background: {{ $categoryColor }}15; color: {{ $categoryColor }}; border: 1px solid {{ $categoryColor }}30;">
+                                                        {{ $categories[$artwork->style] ?? $artwork->style }}
+                                                    </span>
+                                                </li>
+
                                             </p>
                                             @if($artwork->medium)
                                                 <p>
@@ -348,7 +368,7 @@ new class extends Component
                                                     @else
                                                         <span style="color: #6b3b4f;">Not for sale</span>
                                                     @endif
-                                                </span>
+                                                </span> 
                                             </p>
                                         </div>
 
@@ -527,4 +547,4 @@ new class extends Component
             
         }
     </style>
-</div>
+</div> 

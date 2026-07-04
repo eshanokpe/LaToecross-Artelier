@@ -25,7 +25,7 @@
         <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
         
         <!-- Title -->
-        <title>@yield('title', 'Latocross - Artwork & Fashion .')</title>
+        <title>@yield('title', 'Latoecross - Artwork & Fashion .')</title>
         <link rel="icon" href="{{ asset('assets/img/logo.png') }}" type="image/gif" sizes="20x20">
         <script src="https://cdn.tailwindcss.com"></script>
         <style type="text/tailwindcss">

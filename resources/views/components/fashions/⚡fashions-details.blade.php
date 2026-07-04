@@ -71,7 +71,8 @@ new class extends Component
         
         // Send email notification
         try {
-            Mail::to(config('mail.from.address'))->send(new FashionEnquiryMail($enquiry, $this->fashion));
+            $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
+            Mail::to($recipients)->send(new FashionEnquiryMail($enquiry, $this->fashion));
         } catch (\Exception $e) {
             // Log error but don't fail
             \Log::error('Failed to send fashion enquiry email: ' . $e->getMessage());

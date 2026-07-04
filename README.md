@@ -58,7 +58,8 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-php artisan make:filament-user
+
+php artisan make:filament-resource Visitor
 
 ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -p 65002 u338147728@147.93.39.5
 
@@ -70,6 +71,12 @@ https://demo.egenslab.com/html/artmart/preview/
 
 php artisan make:livewire artworks-details
 
-Art That Speaks To Your Soul
+ php artisan make:model Visitor -m
 
-Unlock a world of imagination with our curated collection of original artworks. From bold abstracts to serene landscapes, discover pieces that inspire, captivate.
+ info@latoecross.com
+ password:O&@jkvTp02~b
+
+ contact@latoecross.com
+ password:r4C/heoYH
+
+ 

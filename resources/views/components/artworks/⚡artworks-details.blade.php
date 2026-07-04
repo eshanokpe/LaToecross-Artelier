@@ -66,9 +66,8 @@ new class extends Component
             'is_read' => false,
         ]);
         
-        // Send email notification (optional)
-        // Mail::to(Setting::get('email'))->send(new ArtworkEnquiryMail($enquiry, $this->artwork));
-        Mail::to("eshanokpe@gmail.com")->send(new ArtworkEnquiryMail($enquiry, $this->artwork));
+        $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
+        Mail::to($recipients)->send(new ArtworkEnquiryMail($enquiry, $this->artwork));
         
         // Success message
         session()->flash('enquiry_success', 'Your enquiry has been sent successfully. We will get back to you shortly.');

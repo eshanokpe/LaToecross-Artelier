@@ -37,7 +37,7 @@ class Header extends Component
             // ]
         ], 
         'fashion' => [
-            'label' => 'Fashion',
+            'label' => 'Fashions',
             'route' => 'fashions.index',
             'children' => []
             // 'children' => [

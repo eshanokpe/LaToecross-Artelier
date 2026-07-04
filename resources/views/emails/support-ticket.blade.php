@@ -67,6 +67,9 @@
 <body>
     <div class="container">
         <div class="header">
+            <div style="margin-bottom: 12px; text-align: center;">
+                <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }} Logo" style="max-height: 60px; width: auto; display: block; margin: 0 auto;">
+            </div>
             <h1>🎫 New Support Ticket</h1>
             <p style="color: #6b3b4f;">A new support ticket has been submitted.</p>
         </div>

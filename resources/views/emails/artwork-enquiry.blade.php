@@ -18,7 +18,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🖼️ New Artwork Enquiry</h1>
+            <div style="margin-bottom: 12px; text-align: center;">
+                <img src="{{ asset('assets/img/logo.png') }}" alt="{{ config('app.name') }} Logo" style="max-height: 60px; width: auto; display: block; margin: 0 auto;">
+            </div>
+            <h1 style="margin: 0;">🖼️ New Artwork Enquiry</h1>
             <p style="color: #6b3b4f;">Someone is interested in an artwork from your collection.</p>
         </div>
 

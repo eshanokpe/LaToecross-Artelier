@@ -28,10 +28,16 @@ class SupportTicketMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        // Convert comma-separated list into clean array of emails
+        $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
+
         return new Envelope(
             subject: 'New Support Ticket: ' . $this->data['subject'],
-            to: config('mail.support_email', 'support@latocross.com'),
-            replyTo: [$this->data['email'], $this->data['name']],
+            to: $recipients, // Accepts array of multiple emails
+            replyTo: [
+                $this->data['email'],
+                $this->data['name'] ?? ''
+            ],
         );
     }
 

@@ -24,8 +24,10 @@ class ArtworkForm
                 Select::make('style')
                     ->label('Art Category') 
                     ->options([
+                        'wall_painting' => 'Wall Painting',
                         'abstract' => 'Abstract Painting',
                         'landscape' => 'Landscape Painting',
+                        'interior_painting' => 'Interior Painting',
                         'mixed_media' => 'Mixed Media Painting',
                         'figure' => 'Figure Painting',
                         'miniature' => 'Miniature',

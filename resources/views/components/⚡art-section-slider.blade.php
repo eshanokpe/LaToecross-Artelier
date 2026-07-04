@@ -13,8 +13,10 @@ new class extends Component
 
     public $categories = [
         'all' => 'All Artworks',
+        'wall_painting' => 'Wall Painting',
         'abstract' => 'Abstract Painting',
         'landscape' => 'Landscape Painting',
+        'interior_painting' => 'Interior Painting',
         'mixed_media' => 'Mixed Media Painting',
         'figure' => 'Figure Painting',
         'miniature' => 'Miniature',
@@ -150,42 +152,61 @@ new class extends Component
                                         </div>
 
                                         <!-- Content Container -->
-                                        <div class="auction-card-content p-4 flex-1 flex flex-col">
+                                        <div class="auction-card-content p-3 flex-1 flex flex-col">
                                             <h6 class="text-base font-bold line-clamp-1 mb-2" style="color: #1a0a0f;">
                                                 <a href="{{ route('artwork.show', $artwork) }}" class="hover:text-DB2077 transition-colors">
                                                     {{ $artwork->title }}
                                                 </a>
                                             </h6>
                                             
-                                            <ul class="space-y-1.5 text-sm flex-1">
+                                             <div class="space-y-1 mt-2 text-sm">
+                                            <p>
                                                 <li class="flex justify-between items-center">
                                                     <span style="color: #6b3b4f;">Category</span>
-                                                    <span style="color: #1a0a0f; font-weight: 500;">
+                                                    @php
+                                                        $categoryColors = [
+                                                            'wall_painting' => '#E91E63',
+                                                            'abstract' => '#9C27B0', 
+                                                            'landscape' => '#4CAF50',
+                                                            'interior_painting' => '#FF9800',
+                                                            'mixed_media' => '#2196F3',
+                                                            'figure' => '#F44336',
+                                                            'miniature' => '#795548',
+                                                            'default' => '#6b3b4f'
+                                                        ];
+                                                        $categoryColor = $categoryColors[$artwork->style] ?? $categoryColors['default'];
+                                                    @endphp
+
+                                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium"
+                                                        style="background: {{ $categoryColor }}15; color: {{ $categoryColor }}; border: 1px solid {{ $categoryColor }}30;">
                                                         {{ $categories[$artwork->style] ?? $artwork->style }}
                                                     </span>
                                                 </li>
-                                                @if($artwork->medium)
-                                                    <li class="flex justify-between items-center">
-                                                        <span style="color: #6b3b4f;">Medium</span>
-                                                        <span style="color: #1a0a0f; font-weight: 500; font-size: 0.75rem;" class="truncate max-w-[100px]">
-                                                            {{ $artwork->medium }}
-                                                        </span>
-                                                    </li>
-                                                @endif
-                                                <li class="flex justify-between items-center pt-1 border-t" style="border-color: #fce4ec;">
-                                                    <span style="color: #6b3b4f;">Price</span>
-                                                    <span style="color: #DB2077; font-weight: 700; font-size: 1.1rem;">
-                                                        @if ($artwork->is_for_sale && $artwork->price)
-                                                            ₦{{ number_format($artwork->price, 2) }}
-                                                        @else
-                                                            <span style="color: #6b3b4f; font-weight: 400;">N/A</span>
-                                                        @endif
+
+                                            </p>
+                                            @if($artwork->medium)
+                                                <p>
+                                                    <span style="color: #6b3b4f;">Medium:</span>
+                                                    <!-- <span style="color: #1a0a0f;">{{ $artwork->medium }}</span> -->
+                                                    <span style="color: #1a0a0f; font-weight: 500; font-size: 0.75rem;" class="truncate max-w-[120px]">
+                                                        {{ $artwork->medium }}
                                                     </span>
-                                                </li>
-                                            </ul>
+                                                </p>
+                                            @endif
+                                            <p>
+                                                <span style="color: #6b3b4f;">Price:</span>
+                                                <span style="color: #DB2077; font-weight: 600;">
+                                                    @if($artwork->is_for_sale && $artwork->price)
+                                                        ₦{{ number_format($artwork->price, 2) }}
+                                                    @else
+                                                        <span style="color: #6b3b4f;">Not for sale</span>
+                                                    @endif
+                                                </span> 
+                                            </p>
+                                        </div>
 
                                             <a href="{{ route('artwork.show', $artwork) }}" 
-                                               class="bid-btn block w-full text-center py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-[1.02] mt-4 text-sm"
+                                               class="bid-btn block w-full text-center py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-[1.02] mt-2 text-sm"
                                                style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                                 <span>View Details</span>
                                             </a>
