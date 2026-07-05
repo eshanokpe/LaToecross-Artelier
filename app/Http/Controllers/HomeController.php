@@ -63,9 +63,9 @@ class HomeController extends Controller
 
         // Send email notification to support team
         try {
-            $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
-            Mail::to($recipients)
-                ->send(new SupportTicketMail($validated));
+            // $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
+            // Mail::to($recipients)
+            //     ->send(new SupportTicketMail($validated));
                 
         } catch (\Exception $e) {
             // Log error but don't fail
