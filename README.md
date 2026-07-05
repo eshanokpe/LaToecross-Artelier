@@ -76,8 +76,11 @@ php artisan make:livewire artworks-details
  info@latoecross.com
  password:O&@jkvTp02~b
 
- contact@latoecross.com
+ support@latoecross.com
  password:r4C/heoYH
+
+ omolayokehinde79@gmail.com
+ 0906 869 8754
 
  
 [u338147728@br-asc-web1075 latocross]$ ls -la public/storage
