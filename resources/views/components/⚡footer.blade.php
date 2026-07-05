@@ -46,8 +46,8 @@ new class extends Component
     {
         $this->validate();
 
-        // TODO: Add newsletter subscription logic here
-        // Example: Newsletter::subscribe($this->email);
+        // $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
+        // Newsletter::subscribe($this->email);
 
         $this->showSuccess = true;
         $this->email = '';

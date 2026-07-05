@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Latocross Artelier - About Us')
+@section('title', 'Latoecross Artelier - About Us')
 @section('meta_description', 'Discover the story behind Latocross Artelier - your premier destination for contemporary African art, connecting artists with collectors worldwide.')
 
 @section('content')

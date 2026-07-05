@@ -59,15 +59,14 @@ class HomeController extends Controller
             'message' => $validated['message'],
             'status' => 'pending',
             'is_read' => false,
-        ]);
+        ]); 
 
         // Send email notification to support team
         try {
-            Mail::to(config('mail.support_email', 'support@latocross.com'))
+            $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
+            Mail::to($recipients)
                 ->send(new SupportTicketMail($validated));
-
-            // Optional: Send confirmation email to customer
-            // Mail::to($validated['email'])->send(new SupportTicketConfirmationMail($validated));
+                
         } catch (\Exception $e) {
             // Log error but don't fail
             \Log::error('Failed to send support ticket email: ' . $e->getMessage());

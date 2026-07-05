@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'FAQ - Latocross Artelier')
+@section('title', 'FAQ - Latoecross Artelier')
 @section('meta_description', 'Find answers to frequently asked questions about Latocross Artelier, our art collections, shipping, returns, and more.')
 
 @section('content')

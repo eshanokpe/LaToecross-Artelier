@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Privacy Policy - Latocross Artelier')
+@section('title', 'Privacy Policy - Latoecross Artelier')
 @section('meta_description', 'Read our privacy policy to understand how Latocross Artelier collects, uses, and protects your personal information.')
 
 @section('content')

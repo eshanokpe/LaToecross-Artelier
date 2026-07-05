@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Latocross Artelier - Contact Us')
+@section('title', 'Latoecross Artelier - Contact Us')
 @section('meta_description', 'Get in touch with Latocross Artelier. We\'d love to hear from you - whether you have questions about art, need assistance, or want to collaborate.')
 
 @section('content')

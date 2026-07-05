@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Terms & Conditions - Latocross Artelier')
+@section('title', 'Terms & Conditions - Latoecross Artelier')
 @section('meta_description', 'Read our terms and conditions to understand the rules and guidelines for using Latocross Artelier website and services.')
 
 @section('content')

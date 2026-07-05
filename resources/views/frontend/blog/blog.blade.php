@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Latocross Artelier - Blog')
+@section('title', 'Latoecross Artelier - Blog')
 @section('meta_description', 'Discover the latest art news, artist interviews, and creative insights at Latocross Artelier. Stay inspired with our curated blog content.')
 
 @section('content')

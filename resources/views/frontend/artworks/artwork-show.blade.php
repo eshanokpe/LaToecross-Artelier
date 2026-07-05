@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $artwork->title . ' - Latocross Artelier')
+@section('title', $artwork->title . ' - Latoecross Artelier')
 @section('meta_description', $artwork->description ?? 'Discover this exquisite artwork at Latocross Artelier.')
 
 @section('content')
