@@ -80,3 +80,6 @@ php artisan make:livewire artworks-details
  password:r4C/heoYH
 
  
+[u338147728@br-asc-web1075 latocross]$ ls -la public/storage
+lrwxrwxrwx 1 u338147728 o1009498369 80 Jul  5 04:19 public/storage -> /home/u338147728/domains/latoecross.com/public_html/latocross/storage/app/public
+[u338147728@br-asc-web1075 latocross]$ 
