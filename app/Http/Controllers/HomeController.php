@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Artwork; 
-use App\Models\Fashion; 
+use App\Models\Artwork;
+use App\Models\Fashion;
 use App\Models\Article;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\SupportTicketMail;
 use App\Models\SupportTicket;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\SupportTicketMail;
 
 class HomeController extends Controller
 {
@@ -63,13 +64,12 @@ class HomeController extends Controller
 
         // Send email notification to support team
         try {
-            // $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
-            // Mail::to($recipients)
-            //     ->send(new SupportTicketMail($validated));
-                
+            $recipients = array_map('trim', explode(',', config('mail.admin_alerts', 'info@latoecross.com')));
+            
+            Mail::to($recipients)
+                ->send(new SupportTicketMail($validated));
         } catch (\Exception $e) {
-            // Log error but don't fail
-            \Log::error('Failed to send support ticket email: ' . $e->getMessage());
+            Log::error('Failed to send support ticket email: ' . $e->getMessage());
         }
 
         return back()->with('support_success', 'Your support ticket has been submitted. Our team will get back to you within 24 hours.');
