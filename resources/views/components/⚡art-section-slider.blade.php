@@ -82,7 +82,7 @@ new class extends Component
                             <li class="flex-shrink-0">
                                 <button 
                                     wire:click="filterByCategory('{{ $key }}')"
-                                    class="nav-link px-5 py-2.5 rounded-full font-medium transition-all duration-300 whitespace-nowrap text-sm"
+                                    class="nav-link px-2.5 py-2.5 rounded-full font-medium transition-all duration-300 whitespace-nowrap text-sm"
                                     style="{{ $selectedCategory === $key 
                                         ? 'background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; box-shadow: 0 4px 15px rgba(219, 32, 119, 0.3); transform: scale(1.02);' 
                                         : 'background: #faf0f5; color: #6b3b4f; border: 2px solid transparent;' }}"
@@ -134,15 +134,7 @@ new class extends Component
                                                 @endif
                                             </div>
 
-                                            <!-- Wishlist Button -->
-                                            <button class="wishlist absolute top-3 right-3 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg" 
-                                                    style="background: rgba(255, 255, 255, 0.95); color: #DB2077; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);"
-                                                    wire:click.prevent="toggleWishlist({{ $artwork->id }})">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                                </svg>
-                                            </button>
-
+                                   
                                             <!-- Quick View Overlay -->
                                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                                 <span class="px-4 py-2 rounded-full text-xs font-medium text-white bg-white/20 backdrop-blur-sm">
@@ -377,17 +369,6 @@ new class extends Component
             transform: scale(1.08);
         }
 
-        /* Wishlist button */
-        .wishlist {
-            transition: all 0.3s ease;
-            opacity: 0.9;
-        }
-
-        .wishlist:hover {
-            opacity: 1;
-            transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(219, 32, 119, 0.2);
-        }
 
         /* Slider buttons */
         .slider-btn {

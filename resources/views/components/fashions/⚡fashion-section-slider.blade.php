@@ -83,7 +83,7 @@ new class extends Component
                                 <li class="flex-shrink-0">
                                     <button 
                                         wire:click="filterByCategory('{{ $key }}')"
-                                        class="nav-link px-4 py-2.5 rounded-full font-medium transition-all duration-300 whitespace-nowrap text-sm"
+                                        class="nav-link px-2.5 py-2.5 rounded-full font-medium transition-all duration-300 whitespace-nowrap text-sm"
                                         style="{{ $selectedCategory === $key 
                                             ? 'background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; box-shadow: 0 4px 15px rgba(219, 32, 119, 0.3); transform: scale(1.02);' 
                                             : 'background: #faf0f5; color: #6b3b4f; border: 2px solid transparent;' }}"
