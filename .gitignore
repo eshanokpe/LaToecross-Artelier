@@ -16,15 +16,14 @@
 /public/build
 /public/hot
 /public/storage
-/storage/*.key
-/storage/pail
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# .gitignore
+# Laravel storage
 /storage/*.key
+/storage/pail
 /storage/app/*
 !/storage/app/.gitignore
 !/storage/app/public
