@@ -34,11 +34,16 @@ class TrackVisitors
             return $next($request);
         }
 
+        // Fetch geo data ONCE and reuse for both fields
+        // (previously this called the API twice per visitor, which frequently
+        // got rate-limited by ipapi.co and caused missing/wrong values)
+        $geo = $this->getGeo($ip);
+
         // Save visitor data
         $visitor = Visitor::create([
             'ip_address' => $ip,
-            'country'    => $this->getGeo($ip, 'country'),
-            'city'       => $this->getGeo($ip, 'city'),
+            'country'    => $geo['country'],
+            'city'       => $geo['city'],
             'page_url'   => $pageUrl,
             'user_agent' => $request->userAgent(),
             'device'     => $this->getDevice($request->userAgent()),
@@ -97,13 +102,17 @@ class TrackVisitors
     }
 
     /**
-     * Get Country & City from ipapi.co (free, HTTPS)
+     * Get Country & City from ipapi.co (free, HTTPS) in a SINGLE request.
+     *
+     * @return array{country: ?string, city: ?string}
      */
-    private function getGeo(string $ip, string $field): ?string
+    private function getGeo(string $ip): array
     {
+        $fallback = ['country' => null, 'city' => null];
+
         // Skip private/local IPs
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            return 'Local/Testing';
+            return ['country' => 'Local/Testing', 'city' => 'Local/Testing'];
         }
 
         try {
@@ -114,27 +123,39 @@ class TrackVisitors
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_SSL_VERIFYPEER => true,
                 CURLOPT_TIMEOUT => 3,
-                CURLOPT_FOLLOWLOCATION => true
+                CURLOPT_FOLLOWLOCATION => true,
+                // ipapi.co can reject/deprioritize requests with no User-Agent
+                CURLOPT_USERAGENT => 'Laravel-Visitor-Tracker/1.0',
             ]);
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
             curl_close($ch);
 
-            if ($httpCode !== 200 || !$response) {
-                return null;
+            if ($curlError || $httpCode !== 200 || !$response) {
+                return $fallback;
             }
 
             $data = json_decode($response, true);
 
-            return match ($field) {
+            if (!is_array($data)) {
+                return $fallback;
+            }
+
+            // ipapi.co returns HTTP 200 even when rate-limited/erroring,
+            // with an "error" flag in the body instead of a non-200 status.
+            if (!empty($data['error'])) {
+                return $fallback;
+            }
+
+            return [
                 'country' => $data['country_name'] ?? null,
                 'city'    => $data['city'] ?? null,
-                default   => null
-            };
+            ];
 
         } catch (\Exception $e) {
-            return null;
+            return $fallback;
         }
     }
 }
