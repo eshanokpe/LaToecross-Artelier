@@ -26,10 +26,10 @@ new class extends Component
 
     public function mount(): void
     {
-        $this->phone         = Setting::get('phone');
-        $this->phone2        = Setting::get('phone2');
-        $this->contactEmail  = Setting::get('email');
-        $this->contactEmail2 = Setting::get('email2');
+        $this->phone         = Setting::get('phone_1');
+        $this->phone2        = Setting::get('phone_2');
+        $this->contactEmail  = Setting::get('email_1');
+        $this->contactEmail2 = Setting::get('email_2');
         $this->address       = Setting::get('address');
         $this->whatsapp      = Setting::get('whatsapp');
         $this->facebook_url  = Setting::get('facebook');
