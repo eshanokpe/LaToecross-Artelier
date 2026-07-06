@@ -2,7 +2,7 @@
 
 @section('title', 'Support Center - Latoecross Artelier')
 @section('meta_description', 'Get help and support from Latocross Artelier. Browse our FAQ, contact our support team, or submit a support ticket.')
-
+ 
 @section('content')
     <!-- Breadcrumb Section with Brand Color -->
     <section class="breadcrumb-section" style="background: linear-gradient(135deg, #1a0a0f 0%, #DB2077 50%, #ff6b9d 100%);">
@@ -65,8 +65,8 @@
                         </div>
                         <h4 class="text-lg font-bold mb-2" style="color: #1a0a0f;">Email Support</h4>
                         <p class="text-sm" style="color: #6b3b4f;">Reach out via email for assistance</p>
-                        <a href="mailto:support@latocross.com" class="inline-block mt-3 text-sm font-medium hover:underline" style="color: #DB2077;">
-                            support@latocross.com →
+                        <a href="mailto:info@latocross.com" class="inline-block mt-3 text-sm font-medium hover:underline" style="color: #DB2077;">
+                            {{ $settings['email_1'] }}, {{ $settings['email_2'] }} →
                         </a>
                     </div>
 
@@ -78,8 +78,8 @@
                         </div>
                         <h4 class="text-lg font-bold mb-2" style="color: #1a0a0f;">Phone Support</h4>
                         <p class="text-sm" style="color: #6b3b4f;">Speak with our support team</p>
-                        <a href="tel:+2348000000000" class="inline-block mt-3 text-sm font-medium hover:underline" style="color: #DB2077;">
-                            +234 800 000 0000 →
+                        <a href="tel:+2349068698754" class="inline-block mt-3 text-sm font-medium hover:underline" style="color: #DB2077;">
+                            {{ $settings['phone'] }} {{ $settings['phone_2'] }} →
                         </a>
                     </div>
                 </div>

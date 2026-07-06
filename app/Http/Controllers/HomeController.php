@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Artwork;
 use App\Models\Fashion;
 use App\Models\Article;
+use App\Models\Setting;
 use App\Models\SupportTicket;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -38,8 +39,21 @@ class HomeController extends Controller
     }
 
     public function support(){
-        return view('frontend.support');
-    }
+        $settings = [
+            'about_content' => Setting::get('about_content'),
+            'facebook_url'  => Setting::get('facebook'),
+            'tiktok_url'   => Setting::get('tiktok'),
+            'instagram_url' => Setting::get('instagram'),
+            'linkedin_url'  => Setting::get('linkedin'),
+            'youtube_url'   => Setting::get('youtube'),
+            'phone'       => Setting::get('phone_1'),
+            'phone_2'       => Setting::get('phone_2'),
+            'email_1'       => Setting::get('email_1'),
+            'email_2'       => Setting::get('email_2'),
+        ];
+
+        return view('frontend.support', compact('settings'));
+    } 
 
     public function submitSupport(Request $request)
     {
