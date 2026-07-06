@@ -30,11 +30,11 @@ new class extends Component
         // Get all settings in one go
         $this->settings = [
             'about_content' => Setting::get('about_content'),
-            'facebook_url'  => Setting::get('facebook_url'),
-            'twitter_url'   => Setting::get('twitter_url'),
-            'instagram_url' => Setting::get('instagram_url'),
-            'linkedin_url'  => Setting::get('linkedin_url'),
-            'youtube_url'   => Setting::get('youtube_url'),
+            'facebook_url'  => Setting::get('facebook'),
+            'twitter_url'   => Setting::get('twitter'),
+            'instagram_url' => Setting::get('instagram'),
+            'linkedin_url'  => Setting::get('linkedin'),
+            'youtube_url'   => Setting::get('youtube'),
             'phone_1'       => Setting::get('phone_1'),
             'phone_2'       => Setting::get('phone_2'),
             'email_1'       => Setting::get('email_1'),
@@ -54,7 +54,7 @@ new class extends Component
 
         $this->dispatch('reset-success', delay: 5000);
     }
-};
+}; 
 ?>
 
 <div class="footer-section-wrapper">
