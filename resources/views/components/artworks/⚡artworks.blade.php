@@ -293,14 +293,14 @@ new class extends Component
                                 <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden {{ $viewMode === 'list' ? 'flex flex-col sm:flex-row' : '' }}">
                                     <!-- Image -->
                                     <div class="relative overflow-hidden {{ $viewMode === 'list' ? 'sm:w-48 flex-shrink-0' : '' }}">
-                                        <a href="{{ route('artwork.show', $artwork) }}">
+                                        <a href="{{ route('artwork.show', encrypt($artwork->id)) }}">
                                             <img src="{{ $artwork->image ? asset('storage/' . $artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
                                                  alt="{{ $artwork->title }}"
                                                  class="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700">
                                         </a>
                                         
                                         <!-- Status Badge -->
-                                        @if($artwork->is_for_sale)
+                                        @if($artwork->is_for_sale && $artwork->price)
                                             <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full"
                                                   style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                                 For Sale
@@ -308,14 +308,7 @@ new class extends Component
                                         @else
                                             <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full"
                                                   style="background: #1a0a0f; color: white;">
-                                                Sold Out
-                                            </span>
-                                        @endif
-
-                                        @if($artwork->is_featured)
-                                            <span class="absolute top-3 right-3 px-3 py-1 text-xs font-bold rounded-full"
-                                                  style="background: #fce4ec; color: #DB2077;">
-                                                ★ Featured
+                                                Not for sale
                                             </span>
                                         @endif
 
@@ -324,7 +317,7 @@ new class extends Component
                                     <!-- Content -->
                                     <div class="p-2 flex-1 flex flex-col">
                                         <h6 class="font-bold line-clamp-1" style="color: #1a0a0f;">
-                                            <a href="{{ route('artwork.show', $artwork) }}" class="hover:underline">
+                                            <a href="{{ route('artwork.show', encrypt($artwork->id)) }}" class="hover:underline">
                                                 {{ $artwork->title }}
                                             </a>
                                         </h6>
@@ -373,7 +366,7 @@ new class extends Component
                                         </div>
 
                                         <div class="mt-4 flex gap-2">
-                                            <a href="{{ route('artwork.show', $artwork) }}" 
+                                            <a href="{{ route('artwork.show', encrypt($artwork->id) ) }}" 
                                                class="flex-1 text-center py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
                                                style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                                 View Details

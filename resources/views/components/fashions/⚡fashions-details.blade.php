@@ -4,7 +4,9 @@ use Livewire\Component;
 use App\Models\Fashion;
 use App\Models\FashionEnquiry;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use App\Mail\FashionEnquiryMail;
+use UltraMsg\WhatsAppApi;
 
 new class extends Component
 {
@@ -75,7 +77,44 @@ new class extends Component
             Mail::to($recipients)->send(new FashionEnquiryMail($enquiry, $this->fashion));
         } catch (\Exception $e) {
             // Log error but don't fail
-            \Log::error('Failed to send fashion enquiry email: ' . $e->getMessage());
+            Log::error('Failed to send fashion enquiry email: ' . $e->getMessage());
+        }
+
+        // WhatsApp notification
+        try { 
+            $instanceId = trim(env('ULTRAMSG_INSTANCE_ID', ''));
+            $token      = trim(env('ULTRAMSG_TOKEN', ''));
+            $adminPhone = trim(env('ULTRAMSG_ADMIN_NUMBER', ''));
+
+            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
+                Log::error('UltraMsg credentials missing in .env');
+                session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp config incomplete.');
+            } else {
+                $api = new WhatsAppApi($token, $instanceId);
+
+                $status = $api->getInstanceStatus();
+                Log::info('UltraMsg Instance Status:', (array) $status);
+
+                $accountStatus = data_get($status, 'status.accountStatus.status');
+
+                if ($accountStatus === 'authenticated') {
+                    $whatsappMessage = "👗 *New Fashion Enquiry*\n\n"
+                        . "🏷️ *Item:* {$this->fashion->title}\n"
+                        . "👤 *Name:* {$this->enquiryName}\n"
+                        . "📧 *Email:* {$this->enquiryEmail}\n"
+                        . "📞 *Phone:* " . ($this->enquiryPhone ?: 'Not provided') . "\n\n"
+                        . "💬 *Message:*\n{$this->enquiryMessage}";
+
+                    $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
+                    Log::info('UltraMsg Send Response:', (array) $response);
+                } else {
+                    Log::warning('UltraMsg not ready:', (array) $status);
+                    session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp alert failed.');
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Fashion Enquiry WhatsApp Error: ' . $e->getMessage());
+            session()->flash('enquiry_warning', 'Enquiry saved, but WhatsApp notification failed.');
         }
         
         // Success message
@@ -200,7 +239,6 @@ new class extends Component
                         @endif
 
                         <!-- Enquiry Button -->
-                        @if($fashion->is_for_sale)
                             <button wire:click="openEnquiryModal" 
                                     class="w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2"
                                     style="background: linear-gradient(135deg, #DB2077, #ff6b9d);">
@@ -209,12 +247,9 @@ new class extends Component
                                 </svg>
                                 <span>Make Enquiry</span>
                             </button>
-                        @else
-                            <button class="w-full py-3.5 rounded-xl font-semibold cursor-not-allowed opacity-60"
-                                    style="background: #1a0a0f; color: white;">
-                                <span>Sold Out</span>
-                            </button>
-                        @endif
+                        
+                           
+                        
                     </div>
                 </div>
             </div>
@@ -239,7 +274,7 @@ new class extends Component
                         @foreach($relatedFashions as $related)
                             <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
                                 <div class="relative overflow-hidden">
-                                    <a href="{{ route('fashion.show', $related->id) }}">
+                                    <a href="{{ route('fashion.show', encrypt($related->id) ) }}">
                                         <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('assets/img/placeholder-fashion.jpg') }}" 
                                              alt="{{ $related->title }}"
                                              class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
@@ -254,7 +289,7 @@ new class extends Component
                                 </div>
                                 <div class="p-4">
                                     <h6 class="font-bold line-clamp-1" style="color: #1a0a0f;">
-                                        <a href="{{ route('fashion.show', $related->id) }}" class="hover:underline">
+                                        <a href="{{ route('fashion.show',  encrypt($related->id) ) }}" class="hover:underline">
                                             {{ $related->title }}
                                         </a>
                                     </h6>

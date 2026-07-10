@@ -11,7 +11,7 @@ new class extends Component
     public $errorMessage = null;
     public $categories;
     public $settings;
-
+ 
     protected $rules = [
         'email' => 'required|email|max:255',
     ];

@@ -11,6 +11,7 @@ use App\Models\SupportTicket;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\SupportTicketMail;
+use UltraMsg\WhatsAppApi;
 
 class HomeController extends Controller
 {
@@ -86,6 +87,40 @@ class HomeController extends Controller
             Log::error('Failed to send support ticket email: ' . $e->getMessage());
         }
 
+        // WhatsApp notification
+        try {
+            $instanceId = trim(env('ULTRAMSG_INSTANCE_ID', ''));
+            $token      = trim(env('ULTRAMSG_TOKEN', ''));
+            $adminPhone = trim(env('ULTRAMSG_ADMIN_NUMBER', ''));
+
+            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
+                Log::error('UltraMsg credentials missing in .env');
+            } else {
+                $api = new WhatsAppApi($token, $instanceId);
+
+                $status = $api->getInstanceStatus();
+                Log::info('UltraMsg Instance Status:', (array) $status);
+
+                $accountStatus = data_get($status, 'status.accountStatus.status');
+
+                if ($accountStatus === 'authenticated') {
+                    $whatsappMessage = "🎫 *New Support Ticket*\n\n"
+                        . "👤 *Name:* {$validated['name']}\n"
+                        . "📧 *Email:* {$validated['email']}\n"
+                        . "📞 *Phone:* " . ($validated['phone'] ?? 'Not provided') . "\n"
+                        . "📌 *Subject:* {$validated['subject']}\n\n"
+                        . "💬 *Message:*\n{$validated['message']}";
+
+                    $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
+                    Log::info('UltraMsg Send Response:', (array) $response);
+                } else {
+                    Log::warning('UltraMsg not ready:', (array) $status);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Support Ticket WhatsApp Error: ' . $e->getMessage());
+        }
+
         return back()->with('support_success', 'Your support ticket has been submitted. Our team will get back to you within 24 hours.');
     }
 
@@ -127,6 +162,7 @@ class HomeController extends Controller
 
     public function FashionShow($id)
     {
+        
        $fashion = Fashion::with('category')->findOrFail($id);
         
         // Get related fashions (same category, excluding current)
@@ -161,11 +197,12 @@ class HomeController extends Controller
         $artworks = Artwork::all();
         return view('frontend.artworks.artworks', compact('artworks'));
     }
-
+ 
     public function artworkShow($id)
     {
+        $decryptId = decrypt($id);
         // Find artwork by its slug instead of ID
-        $artwork = Artwork::where('id', $id)->firstOrFail();
+        $artwork = Artwork::where('id', $decryptId)->firstOrFail();
 
         return view('frontend.artworks.artwork-show', compact('artwork'));
     }

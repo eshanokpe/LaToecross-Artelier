@@ -105,7 +105,7 @@ new class extends Component
                                         <div class="fashion-card bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group h-full flex flex-col">
                                             <!-- Image Container -->
                                             <div class="fashion-card-img-wrap relative overflow-hidden">
-                                                <a href="{{ route('fashion.show', $fashion->id) }}" class="card-img block">
+                                                <a href="{{ route('fashion.show', encrypt($fashion->id) ) }}" class="card-img block">
                                                     <img
                                                         src="{{ $fashion->image ? asset('storage/' . $fashion->image) : asset('assets/img/placeholder-fashion.jpg') }}"
                                                         alt="{{ $fashion->title }}"
@@ -115,12 +115,7 @@ new class extends Component
 
                                                 <!-- Status Badges -->
                                                 <div class="absolute top-3 left-3 flex flex-col gap-1.5">
-                                                    @if($fashion->is_featured)
-                                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider"
-                                                              style="background: #fce4ec; color: #DB2077; box-shadow: 0 2px 8px rgba(219, 32, 119, 0.2);">
-                                                            ★ Featured
-                                                        </span>
-                                                    @endif
+                                                    
                                                     @if($fashion->is_for_sale)
                                                         <span class="px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider"
                                                               style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; box-shadow: 0 2px 8px rgba(219, 32, 119, 0.2);">
@@ -129,7 +124,7 @@ new class extends Component
                                                     @else
                                                         <span class="px-2.5 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider" 
                                                               style="background: #1a0a0f; color: white; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
-                                                            Sold Out
+                                                            Not For Sale
                                                         </span>
                                                     @endif
                                                 </div>
@@ -145,7 +140,7 @@ new class extends Component
                                             <!-- Content Container -->
                                             <div class="fashion-card-content p-4 flex-1 flex flex-col">
                                                 <h6 class="text-base font-bold line-clamp-1 mb-1" style="color: #1a0a0f;">
-                                                    <a href="{{ route('fashion.show', $fashion->id) }}" class="hover:underline">
+                                                    <a href="{{ route('fashion.show', encrypt($fashion->id) ) }}" class="hover:underline">
                                                         {{ $fashion->title }}
                                                     </a>
                                                 </h6>
@@ -177,7 +172,7 @@ new class extends Component
                                                     </li>
                                                 </ul>
 
-                                                <a href="{{ route('fashion.show', $fashion->id) }}" 
+                                                <a href="{{ route('fashion.show', encrypt($fashion->id) ) }}" 
                                                    class="fashion-btn block w-full text-center py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-[1.02] mt-3 text-sm"
                                                    style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                                     <span>View Details</span>

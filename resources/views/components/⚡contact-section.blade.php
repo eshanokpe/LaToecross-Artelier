@@ -4,8 +4,10 @@ use App\Models\ContactMessage;
 use App\Models\Setting;
 use Livewire\Component;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log; // ✅ Added missing Log import
 use App\Mail\ContactFormMail;
 use App\Mail\ContactFormAutoReplyMail;
+use UltraMsg\WhatsAppApi;
 
 new class extends Component 
 {
@@ -47,11 +49,11 @@ new class extends Component
         ];
     }
 
+    
     public function submit(): void
     {
         $this->validate();
 
-        // Save to database
         $contact = ContactMessage::create([
             'name'    => $this->name,
             'email'   => $this->email,
@@ -60,26 +62,56 @@ new class extends Component
             'is_read' => false,
         ]);
 
-        // ✅ Send email notification
-        try { 
-            
-            $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
-            Mail::to($recipients)
-                ->send(new ContactFormMail($this->name, $this->email, $this->subject, $this->message));
-            
-            // Optional: Send auto-reply to user
-            Mail::to($this->email)
-                ->send(new ContactFormAutoReplyMail($this->name));
-            
+        try {
+            $instanceId = trim(config('services.ultramsg.instance_id', ''));
+            $token      = trim(config('services.ultramsg.token', ''));
+            $adminPhone = trim(config('services.ultramsg.admin_number', ''));
+
+            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
+                Log::error('UltraMsg credentials missing in .env');
+                session()->flash('contact_warning', 'Message saved, WhatsApp config incomplete.');
+                return;
+            }
+
+            // ✅ FIX: REVERSE PARAMETERS as per SDK definition
+            $api = new WhatsAppApi($token, $instanceId);
+
+            $status = $api->getInstanceStatus();
+            Log::info('UltraMsg Instance Status:', (array) $status);
+
+            $accountStatus = data_get($status, 'status.accountStatus.status');
+
+            if ($accountStatus === 'authenticated') {
+                $whatsappMessage = "📩 *New Contact Form Submission*\n\n"
+                    . "👤 *Name:* {$this->name}\n"
+                    . "📧 *Email:* {$this->email}\n"
+                    . "📝 *Subject:* " . ($this->subject ?: 'No Subject') . "\n\n"
+                    . "💬 *Message:*\n{$this->message}";
+
+                $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
+                Log::info('UltraMsg Send Response:', (array) $response);
+            } else {
+                Log::warning('UltraMsg not ready:', (array) $status);
+                session()->flash('contact_warning', 'Message saved, WhatsApp alert failed.');
+            }
+
+            // --------------------------
+            // Optional: Uncomment to enable email notifications
+            // --------------------------
+            $recipients = array_map('trim', explode(',', config('mail.admin_alerts', '')));
+            if (!empty($recipients[0])) {
+                Mail::to($recipients)->send(new ContactFormMail($this->name, $this->email, $this->subject, $this->message));
+            }
+            Mail::to($this->email)->send(new ContactFormAutoReplyMail($this->name));
+
+
         } catch (\Exception $e) {
-            // Log error but don't fail the submission
-            \Log::error('Contact email failed: ' . $e->getMessage());
-            session()->flash('contact_warning', 'Your message was saved but email notification failed. We will still get back to you.');
+            Log::error('Contact Form Error: ' . $e->getMessage());
+            session()->flash('contact_warning', 'Message saved, but notifications failed.');
         }
 
         $this->reset(['name', 'email', 'subject', 'message']);
-
-        session()->flash('contact_success', 'Your message has been sent successfully. We will get back to you soon.');
+        session()->flash('contact_success', 'Your message has been sent successfully.');
     }
 };
 ?>
@@ -203,30 +235,7 @@ new class extends Component
                     <!-- Contact Form Column -->
                     <div class="lg:col-span-3">
                         <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 lg:p-10">
-                            <!-- Success Message -->
-                            @if (session('contact_success'))
-                                <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #f0fdf4; border: 1px solid #86efac;">
-                                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #22c55e;" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <div>
-                                        <p class="text-sm font-medium" style="color: #166534;">Success!</p>
-                                        <p class="text-sm" style="color: #15803d;">{{ session('contact_success') }}</p>
-                                        <p class="text-xs mt-1" style="color: #15803d;">A confirmation email has been sent to your inbox.</p>
-                                    </div>
-                                </div>
-                            @endif
-                            @if (session('contact_warning'))
-                                <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #fefce8; border: 1px solid #fde68a;">
-                                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #f59e0b;" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <div>
-                                        <p class="text-sm font-medium" style="color: #92400e;">⚠️ Warning</p>
-                                        <p class="text-sm" style="color: #78350f;">{{ session('contact_warning') }}</p>
-                                    </div>
-                                </div>
-                            @endif
+                            
 
                             <h3 class="text-2xl font-bold mb-2" style="color: #1a0a0f; font-family: 'Georgia', serif;">Send Us a Message</h3>
                             <p class="text-sm mb-6" style="color: #6b3b4f;">Fill in the form below and we'll get back to you as soon as possible.</p>
@@ -301,6 +310,31 @@ new class extends Component
                                         <span wire:model="message" x-text="$wire.message.length"></span>/2000 characters
                                     </div>
                                 </div>
+
+                                <!-- Success Message -->
+                            @if (session('contact_success'))
+                                <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #f0fdf4; border: 1px solid #86efac;">
+                                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #22c55e;" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium" style="color: #166534;">Success!</p>
+                                        <p class="text-sm" style="color: #15803d;">{{ session('contact_success') }}</p>
+                                        <p class="text-xs mt-1" style="color: #15803d;">A confirmation email has been sent to your inbox.</p>
+                                    </div>
+                                </div>
+                            @endif
+                            @if (session('contact_warning'))
+                                <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #fefce8; border: 1px solid #fde68a;">
+                                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #f59e0b;" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium" style="color: #92400e;">⚠️ Warning</p>
+                                        <p class="text-sm" style="color: #78350f;">{{ session('contact_warning') }}</p>
+                                    </div>
+                                </div>
+                            @endif
 
                                 <button 
                                     type="submit" 

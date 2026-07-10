@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log;
+use UltraMsg\WhatsAppApi;
 
 class TrackVisitors
 {
@@ -22,7 +24,7 @@ class TrackVisitors
             return $next($request);
         }
 
-        $ip = $request->ip();
+        $ip = $this->resolveIp($request);
         $pageUrl = $request->fullUrl();
 
         // Avoid duplicate entries for the same page from the same IP within 10 minutes
@@ -35,8 +37,6 @@ class TrackVisitors
         }
 
         // Fetch geo data ONCE and reuse for both fields
-        // (previously this called the API twice per visitor, which frequently
-        // got rate-limited by ipapi.co and caused missing/wrong values)
         $geo = $this->getGeo($ip);
 
         // Save visitor data
@@ -55,7 +55,73 @@ class TrackVisitors
         Notification::route('mail', $recipients)
             ->notify(new NewVisitorNotification($visitor));
 
+        // WhatsApp notification
+        $this->sendWhatsAppAlert($visitor);
+
         return $next($request);
+    }
+
+    /**
+     * Send a WhatsApp alert for the new visitor via UltraMsg.
+     */
+    private function sendWhatsAppAlert(Visitor $visitor): void
+    {
+        try {
+            $instanceId = trim(env('ULTRAMSG_INSTANCE_ID', ''));
+            $token      = trim(env('ULTRAMSG_TOKEN', ''));
+            $adminPhone = trim(env('ULTRAMSG_ADMIN_NUMBER', ''));
+
+            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
+                Log::error('UltraMsg credentials missing in .env');
+                return;
+            }
+
+            $api = new WhatsAppApi($token, $instanceId);
+
+            $status = $api->getInstanceStatus();
+            Log::info('UltraMsg Instance Status:', (array) $status);
+
+            $accountStatus = data_get($status, 'status.accountStatus.status');
+
+            if ($accountStatus !== 'authenticated') {
+                Log::warning('UltraMsg not ready:', (array) $status);
+                return;
+            }
+
+            $whatsappMessage = "📢 *New Visitor on Latocross Website*\n\n"
+                . "🌐 *Page:* {$visitor->page_url}\n"
+                . "📍 *Location:* {$visitor->country}, {$visitor->city}\n"
+                . "💻 *Device:* {$visitor->device} / {$visitor->browser}\n"
+                . "🕒 *Time:* {$visitor->created_at->format('D, d M Y H:i')}";
+
+            $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
+            Log::info('UltraMsg Send Response:', (array) $response);
+
+        } catch (\Exception $e) {
+            Log::error('Visitor Alert WhatsApp Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Resolve the real visitor IP, accounting for Cloudflare and
+     * standard reverse-proxy forwarding headers. Falls back to
+     * Laravel's own resolved IP (which respects TrustProxies) if
+     * no proxy-specific header is present.
+     */
+    private function resolveIp(Request $request): string
+    {
+        if ($cfIp = $request->header('CF-Connecting-IP')) {
+            return $cfIp;
+        }
+
+        if ($forwarded = $request->header('X-Forwarded-For')) {
+            $ips = array_map('trim', explode(',', $forwarded));
+            if (filter_var($ips[0], FILTER_VALIDATE_IP)) {
+                return $ips[0];
+            }
+        }
+
+        return $request->ip();
     }
 
     /**
@@ -110,7 +176,6 @@ class TrackVisitors
     {
         $fallback = ['country' => null, 'city' => null];
 
-        // Skip private/local IPs
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
             return ['country' => 'Local/Testing', 'city' => 'Local/Testing'];
         }
@@ -124,7 +189,6 @@ class TrackVisitors
                 CURLOPT_SSL_VERIFYPEER => true,
                 CURLOPT_TIMEOUT => 3,
                 CURLOPT_FOLLOWLOCATION => true,
-                // ipapi.co can reject/deprioritize requests with no User-Agent
                 CURLOPT_USERAGENT => 'Laravel-Visitor-Tracker/1.0',
             ]);
 
@@ -143,8 +207,6 @@ class TrackVisitors
                 return $fallback;
             }
 
-            // ipapi.co returns HTTP 200 even when rate-limited/erroring,
-            // with an "error" flag in the body instead of a non-200 status.
             if (!empty($data['error'])) {
                 return $fallback;
             }

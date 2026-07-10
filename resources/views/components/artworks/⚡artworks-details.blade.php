@@ -4,7 +4,9 @@ use Livewire\Component;
 use App\Models\Artwork;
 use App\Models\ArtworkEnquiry;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use App\Mail\ArtworkEnquiryMail;
+use UltraMsg\WhatsAppApi;
 
 new class extends Component
 {
@@ -68,6 +70,43 @@ new class extends Component
         
         $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
         Mail::to($recipients)->send(new ArtworkEnquiryMail($enquiry, $this->artwork));
+
+        // WhatsApp notification
+        try {
+            $instanceId = trim(env('ULTRAMSG_INSTANCE_ID', ''));
+            $token      = trim(env('ULTRAMSG_TOKEN', ''));
+            $adminPhone = trim(env('ULTRAMSG_ADMIN_NUMBER', ''));
+
+            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
+                Log::error('UltraMsg credentials missing in .env');
+                session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp config incomplete.');
+            } else {
+                $api = new WhatsAppApi($token, $instanceId);
+
+                $status = $api->getInstanceStatus();
+                Log::info('UltraMsg Instance Status:', (array) $status);
+
+                $accountStatus = data_get($status, 'status.accountStatus.status');
+
+                if ($accountStatus === 'authenticated') {
+                    $whatsappMessage = "🎨 *New Artwork Enquiry*\n\n"
+                        . "🖼️ *Artwork:* {$this->artwork->title}\n"
+                        . "👤 *Name:* {$this->enquiryName}\n"
+                        . "📧 *Email:* {$this->enquiryEmail}\n"
+                        . "📞 *Phone:* " . ($this->enquiryPhone ?: 'Not provided') . "\n\n"
+                        . "💬 *Message:*\n{$this->enquiryMessage}";
+
+                    $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
+                    Log::info('UltraMsg Send Response:', (array) $response);
+                } else {
+                    Log::warning('UltraMsg not ready:', (array) $status);
+                    session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp alert failed.');
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Artwork Enquiry WhatsApp Error: ' . $e->getMessage());
+            session()->flash('enquiry_warning', 'Enquiry saved, but WhatsApp notification failed.');
+        }
         
         // Success message
         session()->flash('enquiry_success', 'Your enquiry has been sent successfully. We will get back to you shortly.');
@@ -113,12 +152,6 @@ new class extends Component
                                     </span>
                                 @endif
                                 
-                                @if($this->artwork->is_featured)
-                                    <span class="absolute top-4 right-4 px-4 py-1.5 text-xs font-bold rounded-full uppercase tracking-wider"
-                                          style="background: #fce4ec; color: #DB2077; box-shadow: 0 4px 15px rgba(219, 32, 119, 0.2);">
-                                        ★ Featured
-                                    </span>
-                                @endif
                             </div>
                             
                             <!-- Image Controls -->
@@ -170,11 +203,7 @@ new class extends Component
                     <!-- Artwork Information Column -->
                     <div class="space-y-6">
                         <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-sm font-semibold px-3 py-1 rounded-full" style="color: #DB2077; background: #fce4ec;">
-                                    ID #{{ $this->artwork->id }}
-                                </span>
-                            </div>
+                            
                             <h2 class="text-3xl md:text-4xl font-bold" style="color: #1a0a0f; font-family: 'Georgia', serif;">
                                 {{ $this->artwork->title }}
                             </h2>
@@ -238,16 +267,16 @@ new class extends Component
                         <!-- Action Buttons -->
                         <div class="flex flex-wrap gap-4 pt-2">
                             
-                            @if($this->artwork->is_for_sale)
-                                <button wire:click="openEnquiryModal" 
-                                        class="flex-1 min-w-[140px] text-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
-                                        style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
-                                    <span>Make Enquiry</span>
-                                    <svg class="w-4 h-4 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                    </svg>
-                                </button>
-                            @endif
+                            
+                            <button wire:click="openEnquiryModal" 
+                                    class="flex-1 min-w-[140px] text-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
+                                    style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
+                                <span>Make Enquiry</span>
+                                <svg class="w-4 h-4 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                            </button>
+                      
                         </div>
 
 
@@ -372,7 +401,7 @@ new class extends Component
                         @foreach($this->relatedArtworks as $related)
                             <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
                                 <div class="relative overflow-hidden">
-                                    <a href="{{ route('artwork.show', $related) }}">
+                                    <a href="{{ route('artwork.show', encrypt($related->id) ) }}">
                                         <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
                                              alt="{{ $related->title }}"
                                              class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700">
@@ -386,7 +415,7 @@ new class extends Component
                                 </div>
                                 <div class="p-4 space-y-2">
                                     <h6 class="font-bold text-sm line-clamp-1" style="color: #1a0a0f;">
-                                        <a href="{{ route('artwork.show', $related) }}" class="hover:underline">
+                                        <a href="{{ route('artwork.show', encrypt($related->id)) }}" class="hover:underline">
                                             {{ $related->title }}
                                         </a>
                                     </h6>
@@ -400,7 +429,7 @@ new class extends Component
                                             <span style="color: #6b3b4f;">Not for sale</span>
                                         @endif
                                     </p>
-                                    <a href="{{ route('artwork.show', $related) }}" 
+                                    <a href="{{ route('artwork.show', encrypt($related->id) ) }}" 
                                        class="block text-center py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
                                        style="background: #fce4ec; color: #DB2077;">
                                         View Details

@@ -2,7 +2,7 @@
 
 @section('title', 'Support Center - Latoecross Artelier')
 @section('meta_description', 'Get help and support from Latocross Artelier. Browse our FAQ, contact our support team, or submit a support ticket.')
- 
+  
 @section('content')
     <!-- Breadcrumb Section with Brand Color -->
     <section class="breadcrumb-section" style="background: linear-gradient(135deg, #1a0a0f 0%, #DB2077 50%, #ff6b9d 100%);">
@@ -181,11 +181,8 @@
                                     class="w-full px-4 py-3 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2"
                                     style="border-color: #e5d0d8; background: #faf0f5; color: #1a0a0f;">
                                 <option value="">Select a subject...</option>
-                                <option value="order">Order Inquiry</option>
-                                <option value="payment">Payment Issue</option>
-                                <option value="shipping">Shipping & Delivery</option>
-                                <option value="return">Returns & Refunds</option>
                                 <option value="artwork">Artwork Inquiry</option>
+                                <option value="fashion">Fashion Inquiry</option>
                                 <option value="technical">Technical Issue</option>
                                 <option value="other">Other</option>
                             </select>

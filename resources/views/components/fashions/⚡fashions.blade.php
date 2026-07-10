@@ -295,7 +295,7 @@ new class extends Component
                                 <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden {{ $viewMode === 'list' ? 'flex flex-col sm:flex-row' : '' }}">
                                     <!-- Image -->
                                     <div class="relative overflow-hidden {{ $viewMode === 'list' ? 'sm:w-48 flex-shrink-0' : '' }}">
-                                        <a href="{{ route('fashion.show', $fashion) }}">
+                                        <a href="{{ route('fashion.show', encrypt($fashion->id)) }}">
                                             <img src="{{ $fashion->image ? asset('storage/' . $fashion->image) : asset('assets/img/placeholder-fashion.jpg') }}" 
                                                  alt="{{ $fashion->title }}"
                                                  class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700">
@@ -326,7 +326,7 @@ new class extends Component
                                     <!-- Content -->
                                     <div class="p-3 flex-1 flex flex-col">
                                         <h6 class="font-bold line-clamp-1" style="color: #1a0a0f;">
-                                            <a href="{{ route('fashion.show', $fashion) }}" class="hover:underline">
+                                            <a href="{{ route('fashion.show', encrypt($fashion->id)) }}" class="hover:underline">
                                                 {{ $fashion->title }}
                                             </a>
                                         </h6>
@@ -357,7 +357,7 @@ new class extends Component
                                         </div>
 
                                         <div class="mt-4 flex gap-2">
-                                            <a href="{{ route('fashion.show', $fashion) }}" 
+                                            <a href="{{ route('fashion.show', encrypt($fashion->id)) }}" 
                                                class="flex-1 text-center py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
                                                style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                                 View Details

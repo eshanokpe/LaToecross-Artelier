@@ -20,8 +20,9 @@ class FashionController extends Controller
      */
     public function show($id)
     {
+        $decryptId = decrypt($id);
         // Get the fashion item
-        $fashion = Fashion::findOrFail($id);
+        $fashion = Fashion::findOrFail($decryptId);
         
         // Get related fashions (same category, excluding current)
         $relatedFashions = Fashion::where('id', '!=', $fashion->id)
