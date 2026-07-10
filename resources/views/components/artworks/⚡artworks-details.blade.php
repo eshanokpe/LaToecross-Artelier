@@ -67,7 +67,7 @@ new class extends Component
             'message' => $this->enquiryMessage,
             'is_read' => false,
         ]);
-        
+          
         $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
         Mail::to($recipients)->send(new ArtworkEnquiryMail($enquiry, $this->artwork));
  
