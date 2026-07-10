@@ -70,8 +70,8 @@ new class extends Component
         
         $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
         Mail::to($recipients)->send(new ArtworkEnquiryMail($enquiry, $this->artwork));
-
-        // WhatsApp notification
+ 
+        // WhatsApp notification 
         try {
             $instanceId = trim(env('ULTRAMSG_INSTANCE_ID', ''));
             $token      = trim(env('ULTRAMSG_TOKEN', ''));
