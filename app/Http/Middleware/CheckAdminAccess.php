@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckAdminAccess
-{
+{  
     public function handle(Request $request, Closure $next): Response
     {
         // ✅ Only allow users where is_admin = true
