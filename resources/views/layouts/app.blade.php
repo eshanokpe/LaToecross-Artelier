@@ -49,6 +49,7 @@
 
         <!-- Header Component -->
         @livewire('header')
+        <livewire:whatsapp-widget />
 
         <!-- Main Content -->
         <main>

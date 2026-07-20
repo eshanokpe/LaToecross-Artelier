@@ -3,6 +3,8 @@
 use App\Models\Category;
 use App\Models\Setting;
 use Livewire\Component;
+use Illuminate\Support\Facades\Http; // ✅ Added for Wasender API
+use Illuminate\Support\Facades\Log;
 
 new class extends Component
 {
@@ -46,13 +48,58 @@ new class extends Component
     {
         $this->validate();
 
-        // $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
-        // Newsletter::subscribe($this->email);
+        try {
+            // ✅ WASNDER API CONFIGURATION
+            // Add these to your .env file:
+            // WASENDER_API_URL=https://wasenderapi.com/api/send-message
+            // WASENDER_BEARER_TOKEN=9b2c787349d305f72c0fc247f37e25684bbfac4af87ce195e042a4d729dd9eb1
+            // WASENDER_ADMIN_PHONE=+1234567890
+            
+            $apiUrl     = config('services.wasender.api_url');
+            $token      = config('services.wasender.bearer_token');
+            $adminPhone = config('services.wasender.admin_phone');
 
-        $this->showSuccess = true;
-        $this->email = '';
+            if (!empty($apiUrl) && !empty($token) && !empty($adminPhone)) {
+                // ✅ FORMAT MESSAGE FOR WHATSAPP
+                $whatsappMessage = "📧 *New Newsletter Subscription*\n\n"
+                    . "👤 *Email:* {$this->email}\n"
+                    . "📅 *Date:* " . now()->format('M d, Y h:i A');
 
-        $this->dispatch('reset-success', delay: 5000);
+                // ✅ SEND REQUEST USING LARAVEL HTTP CLIENT (Matches your cURL)
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type'  => 'application/json',
+                ])->post($apiUrl, [
+                    'to'   => $adminPhone,
+                    'text' => $whatsappMessage
+                ]);
+
+                if ($response->successful()) {
+                    Log::info('Newsletter WhatsApp Alert Sent:', ['email' => $this->email]);
+                } else {
+                    Log::warning('Newsletter WhatsApp Alert Failed:', [
+                        'status' => $response->status(),
+                        'body'   => $response->body()
+                    ]);
+                }
+            } else {
+                Log::warning('Wasender credentials missing for newsletter alert.');
+            }
+
+            // ✅ Show Success UI
+            $this->showSuccess = true;
+            $this->email = '';
+            
+            // Reset success message after 5 seconds
+            $this->dispatch('reset-success', delay: 5000);
+
+        } catch (\Exception $e) {
+            Log::error('Newsletter Subscribe Error: ' . $e->getMessage());
+            // Still show success to user even if WhatsApp fails, 
+            // or set $this->errorMessage = "Subscription failed.";
+            $this->showSuccess = true;
+            $this->email = '';
+        }
     }
 }; 
 ?>

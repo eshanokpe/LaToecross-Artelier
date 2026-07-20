@@ -78,3 +78,9 @@ Route::get('/storage/{path}', function ($path) {
         ->header('Content-Type', $disk->mimeType($path));
 })->where('path', '.*');
 
+Route::post('/whatsapp-chat', [WhatsAppChatController::class, 'store']);
+
+Route::get('/clear-cache', function() {
+    Artisan::call('optimize:clear');
+    return "Cache cleared!";
+});

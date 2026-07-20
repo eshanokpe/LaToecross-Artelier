@@ -2,13 +2,19 @@
 
 use Livewire\Component;
 use App\Models\Article;
-
+use Illuminate\Support\Facades\Http; // ✅ Added for Wasender API
+use Illuminate\Support\Facades\Log;
+ 
 new class extends Component
 {
     public $articles = [];
     public $currentPage = 1;
     public $itemsPerPage = 6;
     public $lastPage = 1;
+    
+    // ✅ Newsletter Subscription Properties
+    public $newsletterEmail = '';
+    public $showSubSuccess = false;
 
     public function mount()
     {
@@ -47,6 +53,59 @@ new class extends Component
             $this->currentPage++;
             $this->loadArticles();
             $this->dispatch('page-changed');
+        }
+    }
+
+    // ✅ NEW: Handle Newsletter Subscription with WhatsApp Alert
+    public function subscribeNewsletter()
+    {
+        $this->validate([
+            'newsletterEmail' => 'required|email|max:255',
+        ]);
+
+        try {
+            // ✅ WASNDER API CONFIGURATION
+            $apiUrl     = config('services.wasender.api_url');
+            $token      = config('services.wasender.bearer_token');
+            $adminPhone = config('services.wasender.admin_phone');
+
+            if (!empty($apiUrl) && !empty($token) && !empty($adminPhone)) {
+                // ✅ FORMAT MESSAGE FOR WHATSAPP
+                $whatsappMessage = "📧 *New Blog Newsletter Subscription*\n\n"
+                    . "👤 *Email:* {$this->newsletterEmail}\n"
+                    . "📄 *Source:* Blog Page\n"
+                    . "📅 *Date:* " . now()->format('M d, Y h:i A');
+
+                // ✅ SEND REQUEST USING LARAVEL HTTP CLIENT
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type'  => 'application/json',
+                ])->post($apiUrl, [
+                    'to'   => $adminPhone,
+                    'text' => $whatsappMessage
+                ]);
+
+                if ($response->successful()) {
+                    Log::info('Blog Newsletter WhatsApp Alert Sent:', ['email' => $this->newsletterEmail]);
+                } else {
+                    Log::warning('Blog Newsletter WhatsApp Alert Failed:', [
+                        'status' => $response->status(),
+                        'body'   => $response->body()
+                    ]);
+                }
+            }
+
+            // Show Success UI
+            $this->showSubSuccess = true;
+            $this->newsletterEmail = '';
+            
+            // Reset success message after 5 seconds (optional JS dispatch)
+            $this->dispatch('reset-sub-success', delay: 5000);
+
+        } catch (\Exception $e) {
+            Log::error('Blog Newsletter Subscribe Error: ' . $e->getMessage());
+            $this->showSubSuccess = true; // Still show success to user
+            $this->newsletterEmail = '';
         }
     }
 };
@@ -236,17 +295,46 @@ new class extends Component
                 <p class="text-sm mb-6" style="color: #cdb4c8;">
                     Subscribe to our newsletter and get the latest art stories delivered to your inbox.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+
+                <!-- Success Message -->
+                @if($showSubSuccess)
+                    <div class="mb-4 p-3 rounded-xl flex items-start justify-center gap-3 max-w-md mx-auto" 
+                         style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3);">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #22c55e;" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium" style="color: #86efac;">Subscribed!</p>
+                            <p class="text-xs" style="color: #86efac;">Thank you for joining our community.</p>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Subscribe Form -->
+                <form wire:submit.prevent="subscribeNewsletter" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                     <input type="email" 
+                           wire:model="newsletterEmail"
                            placeholder="Enter your email"
                            class="flex-1 px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 text-sm"
                            style="border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white;"
                            wire:focus="border-color: #DB2077; ring-color: #DB2077;">
-                    <button class="px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-105"
+                    
+                    <button type="submit" 
+                            wire:loading.attr="disabled"
+                            class="px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed"
                             style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
-                        Subscribe
+                        <span wire:loading.remove>Subscribe</span>
+                        <svg wire:loading class="animate-spin h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                     </button>
-                </div>
+                </form>
+                
+                @error('newsletterEmail')
+                    <p class="text-xs mt-2" style="color: #f87171;">{{ $message }}</p>
+                @enderror
+
                 <p class="text-xs mt-3" style="color: #6b3b4f;">
                     No spam. Unsubscribe anytime.
                 </p>

@@ -2,7 +2,7 @@
 
 @section('title', 'Latoecross Artelier - Blog')
 @section('meta_description', 'Discover the latest art news, artist interviews, and creative insights at Latocross Artelier. Stay inspired with our curated blog content.')
-
+ 
 @section('content')
     <!-- Breadcrumb Section with Brand Color -->
     <section class="breadcrumb-section" style="background: linear-gradient(135deg, #1a0a0f 0%, #DB2077 50%, #ff6b9d 100%);">

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ArtworkController;
 use App\Http\Controllers\Api\FashionController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Api\WhatsAppChatController;
 use Illuminate\Support\Facades\Route;
 
 // Artworks
@@ -24,3 +25,7 @@ Route::post('/contact', [ContactController::class, 'store']);
 
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+
+
+// WhatsApp Chat Widget
+Route::post('/api/whatsapp-chat', [WhatsAppChatController::class, 'store']);

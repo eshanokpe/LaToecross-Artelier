@@ -5,8 +5,8 @@ use App\Models\Fashion;
 use App\Models\FashionEnquiry;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http; // ✅ Added for Wasender API
 use App\Mail\FashionEnquiryMail;
-use UltraMsg\WhatsAppApi;
 
 new class extends Component
 {
@@ -79,37 +79,47 @@ new class extends Component
             // Log error but don't fail
             Log::error('Failed to send fashion enquiry email: ' . $e->getMessage());
         }
-
-        // WhatsApp notification
+ 
+        // ✅ WhatsApp notification using Wasender API
         try { 
-            $instanceId = trim(env('ULTRAMSG_INSTANCE_ID', ''));
-            $token      = trim(env('ULTRAMSG_TOKEN', ''));
-            $adminPhone = trim(env('ULTRAMSG_ADMIN_NUMBER', ''));
+            // Add these to your .env file:
+            // WASENDER_API_URL=https://wasenderapi.com/api/send-message
+            // WASENDER_BEARER_TOKEN=9b2c787349d305f72c0fc247f37e25684bbfac4af87ce195e042a4d729dd9eb1
+            // WASENDER_ADMIN_PHONE=+1234567890
+            
+            $apiUrl     = config('services.wasender.api_url');
+            $token      = config('services.wasender.bearer_token');
+            $adminPhone = config('services.wasender.admin_phone');
 
-            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
-                Log::error('UltraMsg credentials missing in .env');
+            if (empty($apiUrl) || empty($token) || empty($adminPhone)) {
+                Log::error('Wasender credentials missing in .env');
                 session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp config incomplete.');
             } else {
-                $api = new WhatsAppApi($token, $instanceId);
+                // ✅ FORMAT MESSAGE FOR WHATSAPP
+                $whatsappMessage = "👗 *New Fashion Enquiry*\n\n"
+                    . "🏷️ *Item:* {$this->fashion->title}\n"
+                    . "👤 *Name:* {$this->enquiryName}\n"
+                    . "📧 *Email:* {$this->enquiryEmail}\n"
+                    . "📞 *Phone:* " . ($this->enquiryPhone ?: 'Not provided') . "\n\n"
+                    . "💬 *Message:*\n{$this->enquiryMessage}";
 
-                $status = $api->getInstanceStatus();
-                Log::info('UltraMsg Instance Status:', (array) $status);
+                // ✅ SEND REQUEST USING LARAVEL HTTP CLIENT (Matches your cURL)
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $token,
+                    'Content-Type'  => 'application/json',
+                ])->post($apiUrl, [
+                    'to'   => $adminPhone,
+                    'text' => $whatsappMessage
+                ]);
 
-                $accountStatus = data_get($status, 'status.accountStatus.status');
-
-                if ($accountStatus === 'authenticated') {
-                    $whatsappMessage = "👗 *New Fashion Enquiry*\n\n"
-                        . "🏷️ *Item:* {$this->fashion->title}\n"
-                        . "👤 *Name:* {$this->enquiryName}\n"
-                        . "📧 *Email:* {$this->enquiryEmail}\n"
-                        . "📞 *Phone:* " . ($this->enquiryPhone ?: 'Not provided') . "\n\n"
-                        . "💬 *Message:*\n{$this->enquiryMessage}";
-
-                    $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
-                    Log::info('UltraMsg Send Response:', (array) $response);
+                if ($response->successful()) {
+                    Log::info('Wasender Send Success:', $response->json());
                 } else {
-                    Log::warning('UltraMsg not ready:', (array) $status);
-                    session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp alert failed.');
+                    Log::warning('Wasender Send Failed:', [
+                        'status' => $response->status(),
+                        'body'   => $response->body()
+                    ]);
+                    session()->flash('enquiry_warning', 'Enquiry saved, but WhatsApp alert failed.');
                 }
             }
         } catch (\Exception $e) {

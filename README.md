@@ -66,6 +66,7 @@ ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -p 65002 u338147728@147.9
 cd ~/domains/latoecross.com/public_html/latocross
 php artisan view:clear
 php artisan storage:link 
+fuwgi4-riKdih-tyzmex
 
 https://demo.egenslab.com/html/artmart/preview/
 
@@ -86,3 +87,10 @@ php artisan make:livewire artworks-details
 [u338147728@br-asc-web1075 latocross]$ ls -la public/storage
 lrwxrwxrwx 1 u338147728 o1009498369 80 Jul  5 04:19 public/storage -> /home/u338147728/domains/latoecross.com/public_html/latocross/storage/app/public
 [u338147728@br-asc-web1075 latocross]$ 
+
+
+
+brew unlink php@8.2
+brew unlink php@8.4
+brew link --force --overwrite php
+php -v

@@ -4,10 +4,10 @@ use App\Models\ContactMessage;
 use App\Models\Setting;
 use Livewire\Component;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log; // ✅ Added missing Log import
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http; // ✅ Added for Wasender API
 use App\Mail\ContactFormMail;
 use App\Mail\ContactFormAutoReplyMail;
-use UltraMsg\WhatsAppApi;
 
 new class extends Component 
 {
@@ -60,39 +60,49 @@ new class extends Component
             'subject' => $this->subject,
             'message' => $this->message,
             'is_read' => false,
-        ]);
+        ]); 
 
         try {
-            $instanceId = trim(config('services.ultramsg.instance_id', ''));
-            $token      = trim(config('services.ultramsg.token', ''));
-            $adminPhone = trim(config('services.ultramsg.admin_number', ''));
+            // ✅ WASNDER API CONFIGURATION
+            // Add these to your .env file:
+            // WASENDER_API_URL=https://wasenderapi.com/api/send-message
+            // WASENDER_BEARER_TOKEN=9b2c787349d305f72c0fc247f37e25684bbfac4af87ce195e042a4d729dd9eb1
+            // WASENDER_ADMIN_PHONE=+1234567890
+            
+            $apiUrl     = config('services.wasender.api_url');
+            $token      = config('services.wasender.bearer_token');
+            $adminPhone = config('services.wasender.admin_phone');
 
-            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
-                Log::error('UltraMsg credentials missing in .env');
+            if (empty($apiUrl) || empty($token) || empty($adminPhone)) {
+                Log::error('Wasender credentials missing in .env');
                 session()->flash('contact_warning', 'Message saved, WhatsApp config incomplete.');
                 return;
             }
 
-            // ✅ FIX: REVERSE PARAMETERS as per SDK definition
-            $api = new WhatsAppApi($token, $instanceId);
+            // ✅ FORMAT MESSAGE FOR WHATSAPP
+            $whatsappMessage = "📩 *New Contact Form Submission*\n\n"
+                . "👤 *Name:* {$this->name}\n"
+                . "📧 *Email:* {$this->email}\n"
+                . "📝 *Subject:* " . ($this->subject ?: 'No Subject') . "\n\n"
+                . "💬 *Message:*\n{$this->message}";
 
-            $status = $api->getInstanceStatus();
-            Log::info('UltraMsg Instance Status:', (array) $status);
+            // ✅ SEND REQUEST USING LARAVEL HTTP CLIENT (Matches your cURL)
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type'  => 'application/json',
+            ])->post($apiUrl, [
+                'to'   => $adminPhone,
+                'text' => $whatsappMessage
+            ]);
 
-            $accountStatus = data_get($status, 'status.accountStatus.status');
-
-            if ($accountStatus === 'authenticated') {
-                $whatsappMessage = "📩 *New Contact Form Submission*\n\n"
-                    . "👤 *Name:* {$this->name}\n"
-                    . "📧 *Email:* {$this->email}\n"
-                    . "📝 *Subject:* " . ($this->subject ?: 'No Subject') . "\n\n"
-                    . "💬 *Message:*\n{$this->message}";
-
-                $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
-                Log::info('UltraMsg Send Response:', (array) $response);
+            if ($response->successful()) {
+                Log::info('Wasender Send Success:', $response->json());
             } else {
-                Log::warning('UltraMsg not ready:', (array) $status);
-                session()->flash('contact_warning', 'Message saved, WhatsApp alert failed.');
+                Log::warning('Wasender Send Failed:', [
+                    'status' => $response->status(),
+                    'body'   => $response->body()
+                ]);
+                session()->flash('contact_warning', 'Message saved, but WhatsApp alert failed.');
             }
 
             // --------------------------

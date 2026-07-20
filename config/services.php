@@ -38,6 +38,11 @@ return [
        'instance_id' => env('ULTRAMSG_INSTANCE_ID'),
        'token' => env('ULTRAMSG_TOKEN'),
        'admin_number' => env('ULTRAMSG_ADMIN_NUMBER'),
-   ],
+    ],
+    'wasender' => [
+        'api_url'     => env('WASENDER_API_URL'),
+        'bearer_token' => env('WASENDER_BEARER_TOKEN'),
+        'admin_phone' => env('WASENDER_ADMIN_PHONE'),
+    ],
 
 ];
