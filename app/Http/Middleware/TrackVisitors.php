@@ -3,13 +3,13 @@
 namespace App\Http\Middleware;
 
 use App\Models\Visitor;
-use App\Notifications\NewVisitorNotification;
+// use App\Notifications\NewVisitorNotification; // ❌ Comment this out or remove if not used elsewhere
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
+// use Illuminate\Support\Facades\Notification; // ❌ Comment this out
 use Illuminate\Support\Facades\Log;
-use UltraMsg\WhatsAppApi;
+use Wasender\Wasender; // ✅ Use Wasender instead of UltraMsg
 
 class TrackVisitors
 {
@@ -50,52 +50,51 @@ class TrackVisitors
             'browser'    => $this->getBrowser($request->userAgent()),
         ]);
 
-        // Send alert to MULTIPLE emails
-        $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
-        Notification::route('mail', $recipients)
-            ->notify(new NewVisitorNotification($visitor));
+        // ❌ DISABLE EMAIL NOTIFICATION TO PREVENT 500 ERRORS
+        // $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
+        // Notification::route('mail', $recipients)
+        //     ->notify(new NewVisitorNotification($visitor));
 
-        // WhatsApp notification
+        // ✅ WhatsApp notification using Wasender
         $this->sendWhatsAppAlert($visitor);
 
         return $next($request);
     }
 
     /**
-     * Send a WhatsApp alert for the new visitor via UltraMsg.
+     * Send a WhatsApp alert for the new visitor via Wasender.
      */
     private function sendWhatsAppAlert(Visitor $visitor): void
     {
         try {
-            $instanceId = trim(env('ULTRAMSG_INSTANCE_ID', ''));
-            $token      = trim(env('ULTRAMSG_TOKEN', ''));
-            $adminPhone = trim(env('ULTRAMSG_ADMIN_NUMBER', ''));
+            // Add these to your .env file:
+            // WASENDER_API_URL=https://wasenderapi.com/api/send-message
+            // WASENDER_BEARER_TOKEN=9b2c787349d305f72c0fc247f37e25684bbfac4af87ce195e042a4d729dd9eb1
+            // WASENDER_ADMIN_PHONE=+1234567890
+            
+            $apiUrl     = config('services.wasender.api_url');
+            $token      = config('services.wasender.bearer_token');
+            $adminPhone = config('services.wasender.admin_phone');
 
-            if (empty($instanceId) || empty($token) || empty($adminPhone)) {
-                Log::error('UltraMsg credentials missing in .env');
+            if (empty($apiUrl) || empty($token) || empty($adminPhone)) {
+                Log::warning('Wasender credentials missing for visitor alert.');
                 return;
             }
 
-            $api = new WhatsAppApi($token, $instanceId);
-
-            $status = $api->getInstanceStatus();
-            Log::info('UltraMsg Instance Status:', (array) $status);
-
-            $accountStatus = data_get($status, 'status.accountStatus.status');
-
-            if ($accountStatus !== 'authenticated') {
-                Log::warning('UltraMsg not ready:', (array) $status);
-                return;
-            }
-
-            $whatsappMessage = "📢 *New Visitor on Latocross Website*\n\n"
+            $whatsappMessage = "📢 *New Visitor on Latocross*\n\n"
                 . "🌐 *Page:* {$visitor->page_url}\n"
                 . "📍 *Location:* {$visitor->country}, {$visitor->city}\n"
                 . "💻 *Device:* {$visitor->device} / {$visitor->browser}\n"
-                . "🕒 *Time:* {$visitor->created_at->format('D, d M Y H:i')}";
+                . "🕒 *Time:* {$visitor->created_at->format('H:i')}";
 
-            $response = $api->sendChatMessage($adminPhone, $whatsappMessage);
-            Log::info('UltraMsg Send Response:', (array) $response);
+            // Send Request using Laravel HTTP Client
+            \Illuminate\Support\Facades\Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type'  => 'application/json',
+            ])->post($apiUrl, [
+                'to'   => $adminPhone,
+                'text' => $whatsappMessage
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Visitor Alert WhatsApp Error: ' . $e->getMessage());
@@ -103,24 +102,19 @@ class TrackVisitors
     }
 
     /**
-     * Resolve the real visitor IP, accounting for Cloudflare and
-     * standard reverse-proxy forwarding headers. Falls back to
-     * Laravel's own resolved IP (which respects TrustProxies) if
-     * no proxy-specific header is present.
+     * Resolve the real visitor IP
      */
     private function resolveIp(Request $request): string
     {
         if ($cfIp = $request->header('CF-Connecting-IP')) {
             return $cfIp;
         }
-
         if ($forwarded = $request->header('X-Forwarded-For')) {
             $ips = array_map('trim', explode(',', $forwarded));
             if (filter_var($ips[0], FILTER_VALIDATE_IP)) {
                 return $ips[0];
             }
         }
-
         return $request->ip();
     }
 
@@ -144,10 +138,7 @@ class TrackVisitors
         if (str_contains($ua, 'tablet') || str_contains($ua, 'ipad')) {
             return 'Tablet';
         }
-        if (str_contains($ua, 'windows') || str_contains($ua, 'macintosh') || str_contains($ua, 'linux')) {
-            return 'Desktop';
-        }
-        return 'Unknown';
+        return 'Desktop';
     }
 
     /**
@@ -156,68 +147,37 @@ class TrackVisitors
     private function getBrowser(string $userAgent): string
     {
         $ua = strtolower($userAgent);
-        $browsers = [
-            'Chrome', 'Firefox', 'Safari', 'Edge', 'Opera', 'Internet Explorer'
-        ];
-        foreach ($browsers as $name) {
-            if (str_contains($ua, strtolower($name))) {
-                return $name;
-            }
-        }
+        if (str_contains($ua, 'chrome')) return 'Chrome';
+        if (str_contains($ua, 'firefox')) return 'Firefox';
+        if (str_contains($ua, 'safari')) return 'Safari';
+        if (str_contains($ua, 'edge')) return 'Edge';
         return 'Unknown';
     }
 
     /**
-     * Get Country & City from ipapi.co (free, HTTPS) in a SINGLE request.
-     *
-     * @return array{country: ?string, city: ?string}
+     * Get Country & City from ipapi.co
      */
     private function getGeo(string $ip): array
     {
         $fallback = ['country' => null, 'city' => null];
-
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            return ['country' => 'Local/Testing', 'city' => 'Local/Testing'];
+            return ['country' => 'Local', 'city' => 'Local'];
         }
 
         try {
-            $url = "https://ipapi.co/{$ip}/json/";
-
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_TIMEOUT => 3,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_USERAGENT => 'Laravel-Visitor-Tracker/1.0',
-            ]);
-
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-
-            if ($curlError || $httpCode !== 200 || !$response) {
-                return $fallback;
+            $response = \Illuminate\Support\Facades\Http::timeout(3)->get("https://ipapi.co/{$ip}/json/");
+            if ($response->successful()) {
+                $data = $response->json();
+                if (!empty($data['country_name'])) {
+                    return [
+                        'country' => $data['country_name'],
+                        'city'    => $data['city'] ?? 'Unknown',
+                    ];
+                }
             }
-
-            $data = json_decode($response, true);
-
-            if (!is_array($data)) {
-                return $fallback;
-            }
-
-            if (!empty($data['error'])) {
-                return $fallback;
-            }
-
-            return [
-                'country' => $data['country_name'] ?? null,
-                'city'    => $data['city'] ?? null,
-            ];
-
         } catch (\Exception $e) {
-            return $fallback;
+            // Ignore geo errors
         }
+        return $fallback;
     }
 }
