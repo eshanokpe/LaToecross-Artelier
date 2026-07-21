@@ -485,7 +485,9 @@ new class extends Component
             clone.addEventListener('click', function(e) {
                 e.preventDefault();
                 const number = @json(config('services.whatsapp.admin_number'));
-                const text = 'Hello, I would like to inquire about your services.';
+                // Get the fashion title from the page content
+                const title = document.querySelector('h2.text-3xl')?.innerText || 'Fashion Item';
+                const text = `Hello, I would like to inquire about this fashion item: ${title} at LaToecross Artelier 🎨`;
                 window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank');
             });
         }
