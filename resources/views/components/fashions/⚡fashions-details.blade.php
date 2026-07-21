@@ -296,22 +296,22 @@ new class extends Component
                         @foreach($relatedFashions as $related)
                             <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
                                 <div class="relative overflow-hidden">
-                                    <a href="{{ route('fashion.show', encrypt($related->id) ) }}">
+                                    <a href="{{ route('fashion.show', encrypt($related->id)) }}">
                                         <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('assets/img/placeholder-fashion.jpg') }}" 
-                                             alt="{{ $related->title }}"
-                                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                                             loading="lazy">
-                                    </a>
+                                            alt="{{ $related->title }}"
+                                            class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                                            loading="lazy">
+                                    </a> 
                                     @if($related->is_featured)
                                         <span class="absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold rounded-full" 
-                                              style="background: #fce4ec; color: #DB2077;">
+                                            style="background: #fce4ec; color: #DB2077;">
                                             ★
                                         </span>
                                     @endif
                                 </div>
                                 <div class="p-4">
                                     <h6 class="font-bold line-clamp-1" style="color: #1a0a0f;">
-                                        <a href="{{ route('fashion.show',  encrypt($related->id) ) }}" class="hover:underline">
+                                        <a href="{{ route('fashion.show', encrypt($related->id)) }}" class="hover:underline">
                                             {{ $related->title }}
                                         </a>
                                     </h6>
@@ -319,7 +319,11 @@ new class extends Component
                                         {{ $categories[$related->category] ?? $related->category }}
                                     </p>
                                     <p class="text-sm mt-1" style="color: #DB2077; font-weight: 600;">
-                                        ₦{{ number_format($related->price, 2) }}
+                                        @if($related->is_for_sale && $related->price)
+                                            ₦{{ number_format($related->price, 2) }}
+                                        @else
+                                            <span style="color: #6b3b4f;">Not for sale</span>
+                                        @endif
                                     </p>
                                 </div>
                             </div>
@@ -478,16 +482,18 @@ new class extends Component
             const link = document.getElementById('wa-direct-link');
             if (!link) return;
 
-            // Remove old listeners to prevent duplicates after Livewire navigation
             const clone = link.cloneNode(true);
             link.parentNode.replaceChild(clone, link);
 
             clone.addEventListener('click', function(e) {
                 e.preventDefault();
+
                 const number = @json(config('services.whatsapp.admin_number'));
-                // Get the fashion title from the page content
-                const title = document.querySelector('h2.text-3xl')?.innerText || 'Fashion Item';
-                const text = `Hello, I would like to inquire about this fashion item: ${title} at LaToecross Artelier 🎨`;
+                const title = @json($fashion->title);
+                const pageUrl = @json(route('fashion.show', encrypt($fashion->id)));
+
+                const text = `Hello, I would like to inquire about this fashion item: *${title}* at LaToecross Artelier 🎨\n${pageUrl}`;
+
                 window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank');
             });
         }
