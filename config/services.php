@@ -47,5 +47,5 @@ return [
     'whatsapp' => [
         'admin_number' => env('WHATSAPP_ADMIN_NUMBER', '2348139267960'),
         'enabled' => env('WHATSAPP_ENABLED', true),
-    ],
+    ], 
 ];
