@@ -621,7 +621,7 @@ new class extends Component
                 // Generate Absolute Image URL via PHP/Blade to ensure it works correctly
                 const imageUrl = @json($this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg'));
                 
-                const text = `Hello, I would like to inquire about this artwork: ${title} at LaToecross Artelier 🎨`;
+                const text = `Hello, I would like to inquire about this artwork: **${title}** at LaToecross Artelier 🎨`;
                 
                 // WhatsApp URL with Image and Text
                 const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(text)}&url=${encodeURIComponent(imageUrl)}`;
