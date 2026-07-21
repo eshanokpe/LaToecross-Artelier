@@ -616,7 +616,7 @@ new class extends Component
                 
                 // Get Configs and Data
                 const number = @json(config('services.whatsapp.admin_number'));
-                // const title = document.querySelector('h2.text-3xl')?.innerText || 'Artwork';
+                const title = document.querySelector('h2.text-3xl')?.innerText || 'Artwork';
                 
                 // Generate Absolute Image URL via PHP/Blade to ensure it works correctly
                 // const imageUrl = @json($this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg'));
