@@ -44,5 +44,8 @@ return [
         'bearer_token' => env('WASENDER_BEARER_TOKEN'),
         'admin_phone' => env('WASENDER_ADMIN_PHONE'),
     ],
-
+    'whatsapp' => [
+        'admin_number' => env('WHATSAPP_ADMIN_NUMBER', '2348139267960'),
+        'enabled' => env('WHATSAPP_ENABLED', true),
+    ],
 ];

@@ -89,8 +89,14 @@ lrwxrwxrwx 1 u338147728 o1009498369 80 Jul  5 04:19 public/storage -> /home/u338
 [u338147728@br-asc-web1075 latocross]$ 
 
 
+# Remove 8.2 from PATH completely for this session
+export PATH=$(echo $PATH | tr ':' '\n' | grep -v "php@8.2" | tr '\n' ':' | sed 's/:$//')
+export PATH="/usr/local/opt/php@8.4/bin:/usr/local/opt/php@8.4/sbin:$PATH"
 
+# Switch PHP
 brew unlink php@8.2
-brew unlink php@8.4
-brew link --force --overwrite php
+brew link --force --overwrite php@8.4
+
+# Verify
+which php
 php -v
