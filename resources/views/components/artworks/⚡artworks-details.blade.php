@@ -616,15 +616,18 @@ new class extends Component
                 
                 // Get Configs and Data
                 const number = @json(config('services.whatsapp.admin_number'));
-                const title = document.querySelector('h2.text-3xl')?.innerText || 'Artwork';
+                // const title = document.querySelector('h2.text-3xl')?.innerText || 'Artwork';
                 
                 // Generate Absolute Image URL via PHP/Blade to ensure it works correctly
-                const imageUrl = @json($this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg'));
+                // const imageUrl = @json($this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg'));
                 
-                const text = `Hello, I would like to inquire about this artwork: **${title}** at LaToecross Artelier 🎨`;
+                // const text = `Hello, I would like to inquire about this artwork: **${title}** at LaToecross Artelier 🎨`;
                 
+                const artworkPageUrl = @json(route('artwork.show', encrypt($this->artwork->id)));
+                const text = `Hello, I would like to inquire about this artwork: *${title}* at LaToecross Artelier 🎨\n${artworkPageUrl}`;
+                const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
                 // WhatsApp URL with Image and Text
-                const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(text)}&url=${encodeURIComponent(imageUrl)}`;
+                // const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(text)}&url=${encodeURIComponent(imageUrl)}`;
                 
                 window.open(whatsappUrl, '_blank');
             });
