@@ -1,751 +1,332 @@
 <?php
 
 use Livewire\Component;
-use App\Models\Artwork;
-use App\Models\ArtworkEnquiry;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http; // ✅ Added for Wasender API
-use App\Mail\ArtworkEnquiryMail;
+use App\Models\ContactMessage;
 
 new class extends Component
 {
-    public Artwork $artwork;
-    public $relatedArtworks = [];
-    
-    // Enquiry Form Properties
-    public $enquiryName = '';
-    public $enquiryEmail = '';
-    public $enquiryPhone = '';
-    public $enquiryMessage = '';
-    public $showEnquiryModal = false;
-    
-    protected $rules = [
-        'enquiryName' => 'required|string|max:255',
-        'enquiryEmail' => 'required|email|max:255',
-        'enquiryPhone' => 'nullable|string|max:20',
-        'enquiryMessage' => 'required|string|min:10|max:2000',
-    ];
-    
-    public function mount(Artwork $artwork)
+    public $visitorName = '';
+    public $visitorEmail = '';
+    public $visitorPhone = '';
+    public $visitorMessage = '';
+
+    protected function rules()
     {
-        $this->artwork = $artwork;
-        $this->loadRelatedArtworks();
+        return [
+            'visitorName' => 'required|string|max:255',
+            'visitorEmail' => 'required|email|max:255',
+            'visitorPhone' => 'nullable|string|max:30',
+            'visitorMessage' => 'required|string|max:2000',
+        ];
     }
-    
-    public function loadRelatedArtworks()
-    {
-        $this->relatedArtworks = Artwork::where('id', '!=', $this->artwork->id)
-            ->where('style', $this->artwork->style)
-            ->take(4)
-            ->get();
-    }
-    
-    public function openEnquiryModal()
-    {
-        $this->showEnquiryModal = true;
-        $this->resetValidation();
-    }
-    
-    public function closeEnquiryModal()
-    {
-        $this->showEnquiryModal = false;
-        $this->reset(['enquiryName', 'enquiryEmail', 'enquiryPhone', 'enquiryMessage']);
-        $this->resetValidation();
-    }
-    
-    public function submitEnquiry()
+
+    public function sendMessage()
     {
         $this->validate();
-        
-        // Save enquiry to database
-        $enquiry = ArtworkEnquiry::create([
-            'artwork_id' => $this->artwork->id,
-            'name' => $this->enquiryName,
-            'email' => $this->enquiryEmail,
-            'phone' => $this->enquiryPhone,
-            'message' => $this->enquiryMessage,
-            'is_read' => false,
-        ]);
-          
-        $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));
-        Mail::to($recipients)->send(new ArtworkEnquiryMail($enquiry, $this->artwork));
-  
-        // ✅ WhatsApp notification using Wasender API
+
         try {
-            // Add these to your .env file:
-            // WASENDER_API_URL=https://wasenderapi.com/api/send-message
-            // WASENDER_BEARER_TOKEN=9b2c787349d305f72c0fc247f37e25684bbfac4af87ce195e042a4d729dd9eb1
-            // WASENDER_ADMIN_PHONE=+1234567890
-            
-            $apiUrl     = config('services.wasender.api_url');
-            $token      = config('services.wasender.bearer_token');
+            ContactMessage::create([
+                'name' => $this->visitorName,
+                'email' => $this->visitorEmail,
+                'phone' => $this->visitorPhone,
+                'subject' => 'WhatsApp Widget Chat',
+                'message' => $this->visitorMessage,
+                'is_read' => false,
+                'source' => 'whatsapp_widget',
+            ]);
+
+            $apiUrl = config('services.wasender.api_url');
+            $token = config('services.wasender.bearer_token');
             $adminPhone = config('services.wasender.admin_phone');
 
-            if (empty($apiUrl) || empty($token) || empty($adminPhone)) {
-                Log::error('Wasender credentials missing in .env');
-                session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp config incomplete.');
-            } else {
-                // ✅ FORMAT MESSAGE FOR WHATSAPP
-                $whatsappMessage = "🎨 *New Artwork Enquiry*\n\n"
-                    . "🖼️ *Artwork:* {$this->artwork->title}\n"
-                    . "👤 *Name:* {$this->enquiryName}\n"
-                    . "📧 *Email:* {$this->enquiryEmail}\n"
-                    . "📞 *Phone:* " . ($this->enquiryPhone ?: 'Not provided') . "\n\n"
-                    . "💬 *Message:*\n{$this->enquiryMessage}";
-
-                // ✅ SEND REQUEST USING LARAVEL HTTP CLIENT (Matches your cURL)
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $token,
-                    'Content-Type'  => 'application/json',
-                ])->post($apiUrl, [
-                    'to'   => $adminPhone,
-                    'text' => $whatsappMessage
-                ]);
-
-                if ($response->successful()) {
-                    Log::info('Wasender Send Success:', $response->json());
-                } else {
-                    Log::warning('Wasender Send Failed:', [
-                        'status' => $response->status(),
-                        'body'   => $response->body()
-                    ]);
-                    session()->flash('enquiry_warning', 'Enquiry saved, but WhatsApp alert failed.');
-                }
+            if (!$apiUrl || !$token || !$adminPhone) {
+                Log::error('Wasender configuration missing');
+                session()->flash('whatsapp_error', 'System configuration error.');
+                return;
             }
+
+            $phoneText = $this->visitorPhone ? "📞 Phone: {$this->visitorPhone}\n" : "📞 Phone: Not provided\n";
+            $whatsappText = "💬 *New Website Chat*\n\n"
+                . "👤 *Name:* {$this->visitorName}\n"
+                . "📧 *Email:* {$this->visitorEmail}\n"
+                . $phoneText
+                . "💬 *Message:*\n{$this->visitorMessage}";
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type' => 'application/json',
+            ])->post($apiUrl, [
+                'to' => $adminPhone,
+                'text' => $whatsappText
+            ]);
+
+            if ($response->successful()) {
+                Log::info('WhatsApp Widget Success:', ['status' => $response->status()]);
+                $this->reset(['visitorName', 'visitorEmail', 'visitorPhone', 'visitorMessage']);
+                session()->flash('whatsapp_success', 'Message sent! We will reply on WhatsApp shortly.');
+            } else {
+                Log::error('Wasender API Error:', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                throw new \Exception('API returned status ' . $response->status());
+            }
+
         } catch (\Exception $e) {
-            Log::error('Artwork Enquiry WhatsApp Error: ' . $e->getMessage());
-            session()->flash('enquiry_warning', 'Enquiry saved, but WhatsApp notification failed.');
+            Log::error('WhatsApp Widget Exception: ' . $e->getMessage());
+            session()->flash('whatsapp_error', 'Failed to send message. Please try again later.');
         }
-        
-        // Success message
-        session()->flash('enquiry_success', 'Your enquiry has been sent successfully. We will get back to you shortly.');
-        
-        // Close modal and reset form
-        $this->closeEnquiryModal();
-        
-        // Dispatch event for notification
-        $this->dispatch('enquiry-sent');
     }
 };
 ?>
 
-<div class="artwork-details-wrapper">
-    <!-- Artwork Details Section -->
-    <section class="artwork-details-section py-12 md:py-16" style="background: linear-gradient(180deg, #FFFFFF 0%, #faf0f5 100%);">
-        <div class="container mx-auto px-4">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
-                    <!-- Image Gallery Column -->
-                    <div class="space-y-4">
-                        <div class="relative rounded-2xl overflow-hidden shadow-2xl bg-white">
-                            <!-- Main Image -->
-                            <div class="relative">
-                                <img 
-                                    src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
-                                    alt="{{ $this->artwork->title }}"
-                                    class="w-full h-auto object-cover"
-                                    style="max-height: 600px;"
-                                    loading="lazy"
-                                >
-                                
-                                <!-- Status Badge -->
-                                @if($this->artwork->is_for_sale)
-                                    <span class="absolute top-4 left-4 px-4 py-1.5 text-xs font-bold rounded-full uppercase tracking-wider" 
-                                          style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; box-shadow: 0 4px 15px rgba(219, 32, 119, 0.3);">
-                                        Available for Enquiry
-                                    </span>
-                                @else
-                                    <span class="absolute top-4 left-4 px-4 py-1.5 text-xs font-bold rounded-full uppercase tracking-wider" 
-                                          style="background: #1a0a0f; color: white; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
-                                        Sold Out
-                                    </span>
-                                @endif
-                                
-                            </div>
-                            
-                            <!-- Image Controls -->
-                            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-3">
-                                <button class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110" 
-                                        style="background: rgba(255, 255, 255, 0.9); color: #DB2077; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                                    </svg>
-                                </button>
-                                <button class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110" 
-                                        style="background: rgba(255, 255, 255, 0.9); color: #DB2077; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Thumbnail Navigation -->
-                        <div class="grid grid-cols-4 gap-3">
-                            <div class="relative rounded-xl overflow-hidden cursor-pointer hover:ring-2 transition-all duration-300" 
-                                 style="border: 2px solid #DB2077; ring-color: #DB2077;">
-                                <img src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
-                                     alt="Thumbnail 1" 
-                                     class="w-full h-20 object-cover">
-                            </div>
-                            <div class="relative rounded-xl overflow-hidden cursor-pointer hover:ring-2 transition-all duration-300 opacity-60 hover:opacity-100" 
-                                 style="border: 2px solid transparent;">
-                                <img src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
-                                     alt="Thumbnail 2" 
-                                     class="w-full h-20 object-cover">
-                            </div>
-                            <div class="relative rounded-xl overflow-hidden cursor-pointer hover:ring-2 transition-all duration-300 opacity-60 hover:opacity-100" 
-                                 style="border: 2px solid transparent;">
-                                <img src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
-                                     alt="Thumbnail 3" 
-                                     class="w-full h-20 object-cover">
-                            </div>
-                            <div class="relative rounded-xl overflow-hidden cursor-pointer hover:ring-2 transition-all duration-300 opacity-60 hover:opacity-100" 
-                                 style="border: 2px solid transparent;">
-                                <img src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
-                                     alt="Thumbnail 4" 
-                                     class="w-full h-20 object-cover">
-                            </div>
-                        </div>
+<div>
+    <div id="whatsapp-widget" class="whatsapp-widget" x-data="{ open: false }">
+        <button 
+            @click="open = !open" 
+            id="whatsapp-toggle" 
+            class="whatsapp-toggle" 
+            aria-label="Chat on WhatsApp"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+        </button>
+
+        <div 
+            x-show="open" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-y-4 scale-95"
+            x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+            x-transition:leave-end="opacity-0 transform translate-y-4 scale-95"
+            id="whatsapp-chat-window" 
+            class="whatsapp-chat-window"
+            style="display: none;"
+        >
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <img src="{{ asset('assets/img/logo.png') }}" alt="Support" class="w-10 h-10 rounded-full object-cover">
                     </div>
-
-                    <!-- Artwork Information Column -->
-                    <div class="space-y-6">
-                        <div>
-                            
-                            <h2 class="text-3xl md:text-4xl font-bold" style="color: #1a0a0f; font-family: 'Georgia', serif;">
-                                {{ $this->artwork->title }}
-                            </h2>
-                        </div>
-
-                        <!-- Artist & Price Info -->
-                        <div class="grid grid-cols-2 gap-4 p-4 rounded-2xl" style="background: #fce4ec;">
-                            <div>
-                                <p class="text-sm" style="color: #6b3b4f;">Category</p>
-                                <p class="font-semibold" style="color: #1a0a0f;">
-                                    {{ ucfirst(str_replace('_', ' ', $this->artwork->style)) }}
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-sm" style="color: #6b3b4f;">Price</p>
-                                <p class="font-bold text-xl" style="color: #DB2077;">
-                                    @if($this->artwork->is_for_sale && $this->artwork->price)
-                                        ₦{{ number_format($this->artwork->price, 2) }}
-                                    @else
-                                        <span style="color: #6b3b4f;">Not for sale</span>
-                                    @endif
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Description -->
-                        <div>
-                            <h4 class="text-lg font-bold mb-2" style="color: #1a0a0f;">Description</h4>
-                            <p class="text-gray-700 leading-relaxed" style="color: #2d1b24;">
-                                {!! $this->artwork->description ?? 'No description available for this artwork.' !!}
-                            </p>
-                        </div>
-
-                        <!-- Artwork Details -->
-                        <div class="grid grid-cols-2 gap-4">
-                            @if($this->artwork->medium)
-                                <div>
-                                    <p class="text-sm" style="color: #6b3b4f;">Medium</p>
-                                    <p class="font-medium" style="color: #1a0a0f;">{{ $this->artwork->medium }}</p>
-                                </div>
-                            @endif
-                            @if($this->artwork->dimensions)
-                                <div>
-                                    <p class="text-sm" style="color: #6b3b4f;">Dimensions</p>
-                                    <p class="font-medium" style="color: #1a0a0f;">{{ $this->artwork->dimensions }}</p>
-                                </div>
-                            @endif
-                        </div>
-                        <!-- Success Message -->
-                        @if (session('enquiry_success'))
-                            <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #f0fdf4; border: 1px solid #86efac;">
-                                <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #22c55e;" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <div>
-                                    <p class="text-sm font-medium" style="color: #166534;">Success!</p>
-                                    <p class="text-sm" style="color: #15803d;">{{ session('enquiry_success') }}</p>
-                                </div>
-                            </div>
-                        @endif
-                        <!-- Action Buttons -->
-                        <div class="flex flex-wrap gap-4 pt-2">
-                            
-                            
-                            <button wire:click="openEnquiryModal" 
-                                    class="flex-1 min-w-[140px] text-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
-                                    style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
-                                <span>Make Enquiry</span>
-                                <svg class="w-4 h-4 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                            </button>
-                      
-                        </div>
-
-
-                        <!-- Ask Question -->
-                        <div class="text-center pt-2">
-                            <span class="text-sm" style="color: #6b3b4f;">
-                                Have any questions? 
-                                <a href="{{ route('contact') }}" class="font-semibold hover:underline" style="color: #DB2077;">
-                                    Ask Us
-                                </a>
-                            </span>
-                        </div>
+                    <div class="chat-header-text">
+                        <h4 class="text-white font-semibold text-sm">Latoecross Support</h4>
+                        <p class="text-green-200 text-xs">Typically replies within minutes</p>
                     </div>
                 </div>
+                <button @click="open = false" id="whatsapp-close" class="text-white hover:text-gray-200 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-        </div>
-    </section>
 
-    <!-- Artwork Details & Artist Info -->
-    <section class="artwork-details-info py-12 md:py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="max-w-7xl mx-auto">
-                <div class="text-center mb-10">
-                    <span class="inline-block font-semibold text-sm uppercase tracking-wider px-4 py-1.5 rounded-full" style="color: #DB2077; background: #fce4ec;">
-                        Artwork Details
-                    </span>
-                    <h3 class="text-2xl md:text-3xl font-bold mt-3" style="color: #1a0a0f; font-family: 'Georgia', serif;">
-                        About This Piece
-                    </h3>
-                    <div class="w-24 h-1 mx-auto mt-4 rounded-full" style="background: linear-gradient(90deg, #DB2077, #ff6b9d, #ff9ec4);"></div>
+            <div class="chat-body">
+                <div class="welcome-message">
+                    <p class="text-sm text-gray-700">👋 Hi there! How can we help you today?</p>
+                    <p class="text-xs text-gray-500 mt-1">Fill in your details and send us a message.</p>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Artist Overview -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 hover:shadow-2xl transition-all duration-300" style="border-left: 4px solid #DB2077;">
-                        <h5 class="text-xl font-bold mb-4" style="color: #1a0a0f; font-family: 'Georgia', serif;">Artist Overview</h5>
-                        <ul class="space-y-4">
-                            <li>
-                                <h6 class="font-semibold text-sm" style="color: #6b3b4f;">Category</h6>
-                                <p style="color: #1a0a0f;">{{ ucfirst(str_replace('_', ' ', $this->artwork->style)) }}</p>
-                            </li>
-                            @if($this->artwork->medium)
-                                <li>
-                                    <h6 class="font-semibold text-sm" style="color: #6b3b4f;">Medium</h6>
-                                    <p style="color: #1a0a0f;">{{ $this->artwork->medium }}</p>
-                                </li>
-                            @endif
-                            @if($this->artwork->dimensions)
-                                <li>
-                                    <h6 class="font-semibold text-sm" style="color: #6b3b4f;">Dimensions</h6>
-                                    <p style="color: #1a0a0f;">{{ $this->artwork->dimensions }}</p>
-                                </li>
-                            @endif
-                        </ul>
-                    </div>
-
-                    <!-- Artwork Specifications -->
-                    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 hover:shadow-2xl transition-all duration-300" style="border-left: 4px solid #ff6b9d;">
-                        <h5 class="text-xl font-bold mb-4" style="color: #1a0a0f; font-family: 'Georgia', serif;">Exploring the Artwork</h5>
-                        <ul class="space-y-4">
-                            <li>
-                                <h6 class="font-semibold text-sm" style="color: #6b3b4f;">Price</h6>
-                                <p style="color: #1a0a0f;">
-                                    @if($this->artwork->is_for_sale && $this->artwork->price)
-                                        ₦{{ number_format($this->artwork->price, 2) }}
-                                    @else
-                                        Not for sale
-                                    @endif
-                                </p>
-                            </li>
-                            <li>
-                                <h6 class="font-semibold text-sm" style="color: #6b3b4f;">Availability</h6>
-                                <p style="color: #1a0a0f;">
-                                    @if($this->artwork->is_for_sale)
-                                        <span style="color: #22c55e;">Available for Enquiry</span>
-                                    @else
-                                        <span style="color: #6b3b4f;">Sold Out</span>
-                                    @endif
-                                </p>
-                            </li>
-                            <li>
-                                <h6 class="font-semibold text-sm" style="color: #6b3b4f;">Featured</h6>
-                                <p style="color: #1a0a0f;">
-                                    @if($this->artwork->is_featured)
-                                        <span style="color: #DB2077;">★ Featured Artwork</span>
-                                    @else
-                                        Standard
-                                    @endif
-                                </p>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="whatsapp-direct-link mb-4">
+                    <p class="text-xs text-gray-500 mb-2">Or chat with us directly on WhatsApp:</p>
+                    <a 
+                        href="#"
+                        id="whatsapp-direct-link"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition duration-200 w-full justify-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        Chat on WhatsApp
+                    </a>
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Related Artworks Section -->
-    @if($this->relatedArtworks->count() > 0)
-        <section class="related-artworks py-12 md:py-16" style="background: #faf0f5;">
-            <div class="container mx-auto px-4">
-                <div class="max-w-7xl mx-auto">
-                    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
-                        <div>
-                            <span class="inline-block font-semibold text-sm uppercase tracking-wider px-4 py-1.5 rounded-full" style="color: #DB2077; background: #fce4ec;">
-                                You May Also Like
-                            </span>
-                            <h3 class="text-2xl md:text-3xl font-bold mt-3" style="color: #1a0a0f; font-family: 'Georgia', serif;">
-                                Related Artworks
-                            </h3>
-                        </div>
-                        <a href="{{ route('artworks.index') }}" class="group inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all duration-300"
-                           style="color: #DB2077; background: #fce4ec;">
-                            <span>View All</span>
-                            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                            </svg>
-                        </a>
-                    </div>
-
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        @foreach($this->relatedArtworks as $related)
-                            <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
-                                <div class="relative overflow-hidden">
-                                    <a href="{{ route('artwork.show', encrypt($related->id) ) }}">
-                                        <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
-                                             alt="{{ $related->title }}"
-                                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700">
-                                    </a>
-                                    @if($related->is_for_sale)
-                                        <span class="absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full" 
-                                              style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
-                                            For Sale
-                                        </span>
-                                    @endif
-                                </div>
-                                <div class="p-4 space-y-2">
-                                    <h6 class="font-bold text-sm line-clamp-1" style="color: #1a0a0f;">
-                                        <a href="{{ route('artwork.show', encrypt($related->id)) }}" class="hover:underline">
-                                            {{ $related->title }}
-                                        </a>
-                                    </h6>
-                                    <p class="text-xs" style="color: #6b3b4f;">
-                                        {{ ucfirst(str_replace('_', ' ', $related->style)) }}
-                                    </p>
-                                    <p class="font-bold text-sm" style="color: #DB2077;">
-                                        @if($related->is_for_sale && $related->price)
-                                            ₦{{ number_format($related->price, 2) }}
-                                        @else
-                                            <span style="color: #6b3b4f;">Not for sale</span>
-                                        @endif
-                                    </p>
-                                    <a href="{{ route('artwork.show', encrypt($related->id) ) }}" 
-                                       class="block text-center py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
-                                       style="background: #fce4ec; color: #DB2077;">
-                                        View Details
-                                    </a>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                <div class="divider flex items-center gap-3 my-3">
+                    <div class="flex-1 border-t border-gray-200"></div>
+                    <span class="text-xs text-gray-400">OR</span>
+                    <div class="flex-1 border-t border-gray-200"></div>
                 </div>
-            </div>
-        </section>
-    @endif
 
-    <!-- Enquiry Modal -->
-    @if($showEnquiryModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4" 
-             style="background: rgba(26, 10, 15, 0.7); backdrop-filter: blur(8px);"
-             wire:click.self="closeEnquiryModal">
-            <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
-                 style="animation: modalSlideIn 0.3s ease-out;">
+                <form wire:submit.prevent="sendMessage" id="whatsapp-chat-form" class="chat-form space-y-3">
+                    <div>
+                        <input 
+                            type="text" 
+                            wire:model="visitorName"
+                            placeholder="Your Name *" 
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                        @error('visitorName') 
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> 
+                        @enderror
+                    </div>
+
+                    <div>
+                        <input 
+                            type="email" 
+                            wire:model="visitorEmail"
+                            placeholder="Your Email *" 
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                        @error('visitorEmail') 
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> 
+                        @enderror
+                    </div>
+
+                    <div>
+                        <input 
+                            type="tel" 
+                            wire:model="visitorPhone"
+                            placeholder="Your Phone Number" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                        @error('visitorPhone') 
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> 
+                        @enderror
+                    </div>
+
+                    <div>
+                        <textarea 
+                            wire:model="visitorMessage"
+                            rows="3"
+                            placeholder="Type your message... *" 
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                        ></textarea>
+                        @error('visitorMessage') 
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> 
+                        @enderror
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        id="whatsapp-send-btn"
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+                        wire:loading.attr="disabled"
+                    >
+                        <span wire:loading.remove id="send-text">Send Message</span>
+                        <svg wire:loading id="send-spinner" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </form>
+
+                @if (session('whatsapp_success'))
+                    <div id="chat-success" class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-sm text-green-700">✅ {{ session('whatsapp_success') }}</p>
+                    </div>
+                @endif
                 
-                <!-- Modal Header -->
-                <div class="sticky top-0 z-10 px-6 py-4 border-b" style="background: #faf0f5; border-color: #fce4ec;">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center" 
-                                 style="background: linear-gradient(135deg, #DB2077, #ff6b9d);">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold" style="color: #1a0a0f;">Enquire About This Artwork</h3>
-                                <p class="text-xs" style="color: #6b3b4f;">{{ $this->artwork->title }}</p>
-                            </div>
-                        </div>
-                        <button wire:click="closeEnquiryModal" 
-                                class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-                                style="color: #6b3b4f; background: #fce4ec;">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                @if (session('whatsapp_error'))
+                    <div id="chat-error" class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-sm text-red-700">❌ {{ session('whatsapp_error') }}</p>
                     </div>
-                </div>
-
-                <!-- Modal Body -->
-                <div class="px-6 py-6">
-                    <form wire:submit="submitEnquiry" class="space-y-5">
-                        <!-- Artwork Preview -->
-                        <div class="flex items-center gap-4 p-3 rounded-xl" style="background: #faf0f5;">
-                            <img src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
-                                 alt="{{ $this->artwork->title }}"
-                                 class="w-16 h-16 object-cover rounded-lg">
-                            <div>
-                                <p class="font-semibold text-sm" style="color: #1a0a0f;">{{ $this->artwork->title }}</p>
-                                <p class="text-xs" style="color: #6b3b4f;">
-                                    {{ ucfirst(str_replace('_', ' ', $this->artwork->style)) }}
-                                    @if($this->artwork->price)
-                                        • ₦{{ number_format($this->artwork->price, 2) }}
-                                    @endif
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Name Field -->
-                        <div>
-                            <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
-                                Full Name <span style="color: #DB2077;">*</span>
-                            </label>
-                            <input type="text" 
-                                   wire:model="enquiryName" 
-                                   placeholder="Enter your full name"
-                                   class="w-full px-4 py-3 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2"
-                                   style="border-color: #e5d0d8; background: #faf0f5; color: #1a0a0f;">
-                            @error('enquiryName') 
-                                <span class="text-xs mt-1 block" style="color: #DB2077;">{{ $message }}</span> 
-                            @enderror
-                        </div>
-
-                        <!-- Email Field -->
-                        <div>
-                            <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
-                                Email Address <span style="color: #DB2077;">*</span>
-                            </label>
-                            <input type="email" 
-                                   wire:model="enquiryEmail" 
-                                   placeholder="Enter your email address"
-                                   class="w-full px-4 py-3 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2"
-                                   style="border-color: #e5d0d8; background: #faf0f5; color: #1a0a0f;">
-                            @error('enquiryEmail') 
-                                <span class="text-xs mt-1 block" style="color: #DB2077;">{{ $message }}</span> 
-                            @enderror
-                        </div>
-
-                        <!-- Phone Field -->
-                        <div>
-                            <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
-                                Phone Number <span style="color: #6b3b4f;">(optional)</span>
-                            </label>
-                            <input type="tel" 
-                                   wire:model="enquiryPhone" 
-                                   placeholder="Enter your phone number"
-                                   class="w-full px-4 py-3 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2"
-                                   style="border-color: #e5d0d8; background: #faf0f5; color: #1a0a0f;">
-                            @error('enquiryPhone') 
-                                <span class="text-xs mt-1 block" style="color: #DB2077;">{{ $message }}</span> 
-                            @enderror
-                        </div>
-
-                        <!-- Message Field -->
-                        <div>
-                            <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
-                                Message <span style="color: #DB2077;">*</span>
-                            </label>
-                            <textarea wire:model="enquiryMessage" 
-                                      rows="4"
-                                      placeholder="Tell us about your interest in this artwork..."
-                                      class="w-full px-4 py-3 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2 resize-y"
-                                      style="border-color: #e5d0d8; background: #faf0f5; color: #1a0a0f; min-height: 100px;"></textarea>
-                            @error('enquiryMessage') 
-                                <span class="text-xs mt-1 block" style="color: #DB2077;">{{ $message }}</span> 
-                            @enderror
-                            <div class="text-xs mt-1 text-right" style="color: #6b3b4f;">
-                                <span x-text="$wire.enquiryMessage.length"></span>/2000 characters
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" 
-                                class="w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2"
-                                style="background: linear-gradient(135deg, #DB2077, #ff6b9d);"
-                                wire:loading.attr="disabled" 
-                                wire:target="submitEnquiry">
-                            <span wire:loading.remove wire:target="submitEnquiry">
-                                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                </svg>
-                                Send Enquiry
-                            </span>
-                            <span wire:loading wire:target="submitEnquiry">
-                                <svg class="animate-spin h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Sending...
-                            </span>
-                        </button>
-                    </form>
-                </div>
+                @endif
             </div>
         </div>
-    @endif
+    </div>
+
+    <script>
+        document.addEventListener('livewire:navigated', initWhatsAppLink);
+        document.addEventListener('DOMContentLoaded', initWhatsAppLink);
+
+        function initWhatsAppLink() {
+            const link = document.getElementById('whatsapp-direct-link');
+            if (!link) return;
+
+            // Remove old listeners to prevent duplicates after Livewire navigation
+            const clone = link.cloneNode(true);
+            link.parentNode.replaceChild(clone, link);
+
+            clone.addEventListener('click', function(e) {
+                e.preventDefault();
+                const number = @json(config('services.whatsapp.admin_number'));
+                const text = 'Hello, I would like to inquire about artworks and fashions at LaToecross Artelier 🎨';
+                window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank');
+            });
+        }
+    </script>
 
     <style>
-        .artwork-details-wrapper {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        .whatsapp-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
         }
 
-        .container {
-            max-width: 1100px;
+        .whatsapp-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #25D366;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .transition-all {
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .duration-300 {
-            transition-duration: 300ms;
-        }
-
-        .duration-700 {
-            transition-duration: 700ms;
-        }
-
-        .hover\:scale-105:hover {
-            transform: scale(1.05);
-        }
-
-        .hover\:scale-110:hover {
+        .whatsapp-toggle:hover {
             transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
         }
 
-        .hover\:shadow-xl:hover {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        .whatsapp-chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            max-height: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
 
-        .hover\:shadow-2xl:hover {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        .chat-header {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Modal Animation */
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        /* Image hover overlay effect */
-        .group:hover .group-hover\:scale-110 {
-            transform: scale(1.1);
+        .chat-avatar img {
+            object-fit: cover;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .chat-body {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #fce4ec;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #DB2077;
-            border-radius: 10px;
-        }
-
-        /* Focus styles for inputs */
-        input:focus, textarea:focus {
-            border-color: #DB2077 !important;
-            box-shadow: 0 0 0 3px rgba(219, 32, 119, 0.1);
-        }
-
-        /* Modal scroll */
-        .max-h-[90vh] {
-            max-height: 90vh;
-        }
-
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .artwork-details-section {
-                padding: 2rem 1rem;
-            }
-            
-            .grid-cols-4 {
-                gap: 0.5rem;
-            }
-            
-            .grid-cols-4 img {
-                height: 60px;
-            }
+        .welcome-message {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         @media (max-width: 640px) {
-            .grid-cols-4 {
-                grid-template-columns: repeat(4, 1fr);
+            .whatsapp-chat-window {
+                width: calc(100vw - 40px);
+                right: -10px;
             }
-            
-            .grid-cols-4 img {
-                height: 50px;
-            }
-        }
-
-        /* Print styles */
-        @media print {
-            .breadcrumb-section {
-                background: #fce4ec !important;
-                color: #1a0a0f !important;
-            }
-            
-            .related-artworks {
-                display: none;
-            }
-            
-            button, .action-buttons {
-                display: none !important;
-            }
-        }
-
-        /* Line clamp utility */
-        .line-clamp-1 {
-            display: -webkit-box;
-            -webkit-line-clamp: 1;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Smooth image transitions */
-        img {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-
-        /* Loading spinner animation */
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .animate-spin {
-            animation: spin 1s linear infinite;
         }
     </style>
 </div>

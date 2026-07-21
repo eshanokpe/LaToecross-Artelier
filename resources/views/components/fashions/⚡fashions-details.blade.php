@@ -291,7 +291,7 @@ new class extends Component
                             Related Fashions
                         </h3>
                         <div class="w-24 h-1 mx-auto mt-3 rounded-full" style="background: linear-gradient(90deg, #DB2077, #ff6b9d, #ff9ec4);"></div>
-                    </div>
+                    </div> 
                     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         @foreach($relatedFashions as $related)
                             <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
