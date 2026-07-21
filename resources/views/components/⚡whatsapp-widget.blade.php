@@ -37,21 +37,12 @@ new class extends Component
                 'source' => 'whatsapp_widget',
             ]);
 
-            // ✅ Check if WhatsApp is enabled globally
-            if (!config('services.whatsapp.enabled', true)) {
-                Log::info('WhatsApp notifications are disabled in config');
-                $this->reset(['visitorName', 'visitorEmail', 'visitorPhone', 'visitorMessage']);
-                session()->flash('whatsapp_success', 'Message saved successfully.');
-                return;
-            }
-
             $apiUrl = config('services.wasender.api_url');
             $token = config('services.wasender.bearer_token');
             $adminPhone = config('services.wasender.admin_phone');
-            $waNumber = config('services.whatsapp.admin_number');
 
-            if (!$apiUrl || !$token || !$adminPhone || !$waNumber) {
-                Log::error('WhatsApp configuration missing');
+            if (!$apiUrl || !$token || !$adminPhone) {
+                Log::error('Wasender configuration missing');
                 session()->flash('whatsapp_error', 'System configuration error.');
                 return;
             }
@@ -139,21 +130,11 @@ new class extends Component
                     <p class="text-xs text-gray-500 mt-1">Fill in your details and send us a message.</p>
                 </div>
 
-                <div class="whatsapp-direct-link mb-4" x-data="{
-                    adminNumber: '{{ config('services.whatsapp.admin_number') }}',
-                    getWhatsAppLink() {
-                        const name = document.querySelector('[wire\\:model=\"visitorName\"]')?.value || '';
-                        const email = document.querySelector('[wire\\:model=\"visitorEmail\"]')?.value || '';
-                        const phone = document.querySelector('[wire\\:model=\"visitorPhone\"]')?.value || '';
-                        const message = document.querySelector('[wire\\:model=\"visitorMessage\"]')?.value || '';
-                        const text = `Hi! I need help with:%0A%0AName: ${encodeURIComponent(name || 'Not provided')}%0AEmail: ${encodeURIComponent(email || 'Not provided')}%0APhone: ${encodeURIComponent(phone || 'Not provided')}%0AMessage: ${encodeURIComponent(message || 'Not provided')}`;
-                        return `https://wa.me/${adminNumber}?text=${text}`;
-                    }
-                }">
+                <div class="whatsapp-direct-link mb-4">
                     <p class="text-xs text-gray-500 mb-2">Or chat with us directly on WhatsApp:</p>
                     <a 
-                        :href="getWhatsAppLink()"
-                        target="_blank"
+                        href="#"
+                        @click.prevent="$dispatch('open-whatsapp')"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition duration-200 w-full justify-center"
                         id="whatsapp-direct-link"
                     >
@@ -250,6 +231,35 @@ new class extends Component
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('livewire:navigated', function () {
+            initWhatsAppLink();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initWhatsAppLink();
+        });
+
+        function initWhatsAppLink() {
+            const linkElement = document.getElementById('whatsapp-direct-link');
+            if (!linkElement) return;
+
+            linkElement.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const name = document.querySelector('[wire\\:model=\"visitorName\"]')?.value || '';
+                const email = document.querySelector('[wire\\:model=\"visitorEmail\"]')?.value || '';
+                const phone = document.querySelector('[wire\\:model=\"visitorPhone\"]')?.value || '';
+                const message = document.querySelector('[wire\\:model=\"visitorMessage\"]')?.value || '';
+                
+                const text = `Hi! I need help with:%0A%0AName: ${encodeURIComponent(name || 'Not provided')}%0AEmail: ${encodeURIComponent(email || 'Not provided')}%0APhone: ${encodeURIComponent(phone || 'Not provided')}%0AMessage: ${encodeURIComponent(message || 'Not provided')}`;
+                
+                const whatsappUrl = `https://wa.me/2348139267960?text=${text}`;
+                window.open(whatsappUrl, '_blank');
+            });
+        }
+    </script>
 
     <style>
         .whatsapp-widget {

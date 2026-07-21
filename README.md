@@ -72,16 +72,16 @@ https://demo.egenslab.com/html/artmart/preview/
 
 php artisan make:livewire artworks-details
 
- php artisan make:model Visitor -m
+php artisan make:model Visitor -m
 
- info@latoecross.com
- password:O&@jkvTp02~b
+info@latoecross.com
+password:O&@jkvTp02~b
 
- support@latoecross.com
- password:r4C/heoYH
+support@latoecross.com
+password:r4C/heoYH
 
- omolayokehinde79@gmail.com
- 0906 869 8754
+omolayokehinde79@gmail.com
+0906 869 8754
 
  
 [u338147728@br-asc-web1075 latocross]$ ls -la public/storage
