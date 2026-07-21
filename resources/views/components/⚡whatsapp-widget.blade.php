@@ -246,7 +246,7 @@ new class extends Component
             clone.addEventListener('click', function(e) {
                 e.preventDefault();
                 const number = @json(config('services.whatsapp.admin_number'));
-                const text = 'Hi! I need help with:';
+                const text = 'Hello, I would like to inquire about your services.';
                 window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank');
             });
         }

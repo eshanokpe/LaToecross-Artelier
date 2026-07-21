@@ -73,6 +73,11 @@ new class extends Component
   
         // ✅ WhatsApp notification using Wasender API
         try {
+            // Add these to your .env file:
+            // WASENDER_API_URL=https://wasenderapi.com/api/send-message
+            // WASENDER_BEARER_TOKEN=9b2c787349d305f72c0fc247f37e25684bbfac4af87ce195e042a4d729dd9eb1
+            // WASENDER_ADMIN_PHONE=+1234567890
+            
             $apiUrl     = config('services.wasender.api_url');
             $token      = config('services.wasender.bearer_token');
             $adminPhone = config('services.wasender.admin_phone');
@@ -81,6 +86,7 @@ new class extends Component
                 Log::error('Wasender credentials missing in .env');
                 session()->flash('enquiry_warning', 'Enquiry saved, WhatsApp config incomplete.');
             } else {
+                // ✅ FORMAT MESSAGE FOR WHATSAPP
                 $whatsappMessage = "🎨 *New Artwork Enquiry*\n\n"
                     . "🖼️ *Artwork:* {$this->artwork->title}\n"
                     . "👤 *Name:* {$this->enquiryName}\n"
@@ -88,6 +94,7 @@ new class extends Component
                     . "📞 *Phone:* " . ($this->enquiryPhone ?: 'Not provided') . "\n\n"
                     . "💬 *Message:*\n{$this->enquiryMessage}";
 
+                // ✅ SEND REQUEST USING LARAVEL HTTP CLIENT (Matches your cURL)
                 $response = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $token,
                     'Content-Type'  => 'application/json',
@@ -111,8 +118,13 @@ new class extends Component
             session()->flash('enquiry_warning', 'Enquiry saved, but WhatsApp notification failed.');
         }
         
+        // Success message
         session()->flash('enquiry_success', 'Your enquiry has been sent successfully. We will get back to you shortly.');
+        
+        // Close modal and reset form
         $this->closeEnquiryModal();
+        
+        // Dispatch event for notification
         $this->dispatch('enquiry-sent');
     }
 };
@@ -127,6 +139,7 @@ new class extends Component
                     <!-- Image Gallery Column -->
                     <div class="space-y-4">
                         <div class="relative rounded-2xl overflow-hidden shadow-2xl bg-white">
+                            <!-- Main Image -->
                             <div class="relative">
                                 <img 
                                     src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
@@ -136,6 +149,7 @@ new class extends Component
                                     loading="lazy"
                                 >
                                 
+                                <!-- Status Badge -->
                                 @if($this->artwork->is_for_sale)
                                     <span class="absolute top-4 left-4 px-4 py-1.5 text-xs font-bold rounded-full uppercase tracking-wider" 
                                           style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; box-shadow: 0 4px 15px rgba(219, 32, 119, 0.3);">
@@ -147,8 +161,10 @@ new class extends Component
                                         Sold Out
                                     </span>
                                 @endif
+                                
                             </div>
                             
+                            <!-- Image Controls -->
                             <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-3">
                                 <button class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110" 
                                         style="background: rgba(255, 255, 255, 0.9); color: #DB2077; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
@@ -165,6 +181,7 @@ new class extends Component
                             </div>
                         </div>
                         
+                        <!-- Thumbnail Navigation -->
                         <div class="grid grid-cols-4 gap-3">
                             <div class="relative rounded-xl overflow-hidden cursor-pointer hover:ring-2 transition-all duration-300" 
                                  style="border: 2px solid #DB2077; ring-color: #DB2077;">
@@ -196,11 +213,13 @@ new class extends Component
                     <!-- Artwork Information Column -->
                     <div class="space-y-6">
                         <div>
+                            
                             <h2 class="text-3xl md:text-4xl font-bold" style="color: #1a0a0f; font-family: 'Georgia', serif;">
                                 {{ $this->artwork->title }}
                             </h2>
                         </div>
 
+                        <!-- Artist & Price Info -->
                         <div class="grid grid-cols-2 gap-4 p-4 rounded-2xl" style="background: #fce4ec;">
                             <div>
                                 <p class="text-sm" style="color: #6b3b4f;">Category</p>
@@ -220,6 +239,7 @@ new class extends Component
                             </div>
                         </div>
 
+                        <!-- Description -->
                         <div>
                             <h4 class="text-lg font-bold mb-2" style="color: #1a0a0f;">Description</h4>
                             <p class="text-gray-700 leading-relaxed" style="color: #2d1b24;">
@@ -227,6 +247,7 @@ new class extends Component
                             </p>
                         </div>
 
+                        <!-- Artwork Details -->
                         <div class="grid grid-cols-2 gap-4">
                             @if($this->artwork->medium)
                                 <div>
@@ -241,7 +262,7 @@ new class extends Component
                                 </div>
                             @endif
                         </div>
-
+                        <!-- Success Message -->
                         @if (session('enquiry_success'))
                             <div class="mb-6 p-4 rounded-xl flex items-start gap-3" style="background: #f0fdf4; border: 1px solid #86efac;">
                                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5" style="color: #22c55e;" fill="currentColor" viewBox="0 0 20 20">
@@ -253,31 +274,23 @@ new class extends Component
                                 </div>
                             </div>
                         @endif
-
-                        <!-- Action Buttons - Responsive Smart Layout -->
-                        <div class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap pt-2">
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            
                             
                             <button wire:click="openEnquiryModal" 
-                                    class="w-full sm:flex-1 text-center px-4 sm:px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base"
+                                    class="flex-1 min-w-[140px] text-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
                                     style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                 <span>Make Enquiry</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                                 </svg>
                             </button>
-
-                            <!-- WhatsApp Direct Link Button -->
-                            <a href="#" id="wa-direct-link"
-                               class="w-full sm:flex-1 text-center px-4 sm:px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base"
-                               style="background: #25D366; color: white;">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                </svg>
-                                <span>Chat on WhatsApp</span>
-                            </a>
                       
                         </div>
 
+
+                        <!-- Ask Question -->
                         <div class="text-center pt-2">
                             <span class="text-sm" style="color: #6b3b4f;">
                                 Have any questions? 
@@ -307,6 +320,7 @@ new class extends Component
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Artist Overview -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 hover:shadow-2xl transition-all duration-300" style="border-left: 4px solid #DB2077;">
                         <h5 class="text-xl font-bold mb-4" style="color: #1a0a0f; font-family: 'Georgia', serif;">Artist Overview</h5>
                         <ul class="space-y-4">
@@ -329,6 +343,7 @@ new class extends Component
                         </ul>
                     </div>
 
+                    <!-- Artwork Specifications -->
                     <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 hover:shadow-2xl transition-all duration-300" style="border-left: 4px solid #ff6b9d;">
                         <h5 class="text-xl font-bold mb-4" style="color: #1a0a0f; font-family: 'Georgia', serif;">Exploring the Artwork</h5>
                         <ul class="space-y-4">
@@ -446,6 +461,7 @@ new class extends Component
             <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
                  style="animation: modalSlideIn 0.3s ease-out;">
                 
+                <!-- Modal Header -->
                 <div class="sticky top-0 z-10 px-6 py-4 border-b" style="background: #faf0f5; border-color: #fce4ec;">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
@@ -470,8 +486,10 @@ new class extends Component
                     </div>
                 </div>
 
+                <!-- Modal Body -->
                 <div class="px-6 py-6">
                     <form wire:submit="submitEnquiry" class="space-y-5">
+                        <!-- Artwork Preview -->
                         <div class="flex items-center gap-4 p-3 rounded-xl" style="background: #faf0f5;">
                             <img src="{{ $this->artwork->image ? asset('storage/' . $this->artwork->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
                                  alt="{{ $this->artwork->title }}"
@@ -487,6 +505,7 @@ new class extends Component
                             </div>
                         </div>
 
+                        <!-- Name Field -->
                         <div>
                             <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
                                 Full Name <span style="color: #DB2077;">*</span>
@@ -501,6 +520,7 @@ new class extends Component
                             @enderror
                         </div>
 
+                        <!-- Email Field -->
                         <div>
                             <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
                                 Email Address <span style="color: #DB2077;">*</span>
@@ -515,6 +535,7 @@ new class extends Component
                             @enderror
                         </div>
 
+                        <!-- Phone Field -->
                         <div>
                             <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
                                 Phone Number <span style="color: #6b3b4f;">(optional)</span>
@@ -529,6 +550,7 @@ new class extends Component
                             @enderror
                         </div>
 
+                        <!-- Message Field -->
                         <div>
                             <label class="block text-sm font-medium mb-1.5" style="color: #1a0a0f;">
                                 Message <span style="color: #DB2077;">*</span>
@@ -546,6 +568,7 @@ new class extends Component
                             </div>
                         </div>
 
+                        <!-- Submit Button -->
                         <button type="submit" 
                                 class="w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-center justify-center gap-2"
                                 style="background: linear-gradient(135deg, #DB2077, #ff6b9d);"
@@ -570,26 +593,6 @@ new class extends Component
             </div>
         </div>
     @endif
-
-    <script>
-        document.addEventListener('livewire:navigated', initWhatsAppLink);
-        document.addEventListener('DOMContentLoaded', initWhatsAppLink);
-
-        function initWhatsAppLink() {
-            const link = document.getElementById('wa-direct-link');
-            if (!link) return;
-
-            const clone = link.cloneNode(true);
-            link.parentNode.replaceChild(clone, link);
-
-            clone.addEventListener('click', function(e) {
-                e.preventDefault();
-                const number = @json(config('services.whatsapp.admin_number'));
-                const text = 'Hello, I would like to inquire about your services.';
-                window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, '_blank');
-            });
-        }
-    </script>
 
     <style>
         .artwork-details-wrapper {
@@ -629,6 +632,7 @@ new class extends Component
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
+        /* Modal Animation */
         @keyframes modalSlideIn {
             from {
                 opacity: 0;
@@ -640,10 +644,12 @@ new class extends Component
             }
         }
 
+        /* Image hover overlay effect */
         .group:hover .group-hover\:scale-110 {
             transform: scale(1.1);
         }
 
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -659,15 +665,18 @@ new class extends Component
             border-radius: 10px;
         }
 
+        /* Focus styles for inputs */
         input:focus, textarea:focus {
             border-color: #DB2077 !important;
             box-shadow: 0 0 0 3px rgba(219, 32, 119, 0.1);
         }
 
+        /* Modal scroll */
         .max-h-[90vh] {
             max-height: 90vh;
         }
 
+        /* Mobile responsiveness */
         @media (max-width: 768px) {
             .artwork-details-section {
                 padding: 2rem 1rem;
@@ -692,6 +701,7 @@ new class extends Component
             }
         }
 
+        /* Print styles */
         @media print {
             .breadcrumb-section {
                 background: #fce4ec !important;
@@ -707,6 +717,7 @@ new class extends Component
             }
         }
 
+        /* Line clamp utility */
         .line-clamp-1 {
             display: -webkit-box;
             -webkit-line-clamp: 1;
@@ -721,11 +732,13 @@ new class extends Component
             overflow: hidden;
         }
 
+        /* Smooth image transitions */
         img {
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         } 
 
+        /* Loading spinner animation */
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
