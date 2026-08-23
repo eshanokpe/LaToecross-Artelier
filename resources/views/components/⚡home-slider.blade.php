@@ -54,13 +54,13 @@ new class extends Component
                             @php $first = $sliders->first(); @endphp
                             <div class="banner-content text-white">
                                 @if ($inspirationImages->isNotEmpty())
-                                    <div class="swiper home1-inspiration-slider w-24 h-24 sm:w-28 sm:h-28 mb-5 rounded-xl overflow-hidden border-2 border-white/60 shadow-xl">
+                                    <div class="swiper home1-inspiration-slider w-full max-w-md h-24 sm:h-28 mb-5 rounded-xl overflow-hidden border-2 border-white/60 shadow-xl">
                                         <div class="swiper-wrapper">
                                             @foreach ($inspirationImages as $inspiration)
                                                 <div class="swiper-slide">
                                                     <img src="{{ asset('storage/' . $inspiration['image']) }}"
                                                          alt="{{ $inspiration['type'] }}: {{ $inspiration['title'] }}"
-                                                         class="w-full h-full object-cover"
+                                                         class="w-full h-full object-cover rounded-lg"
                                                          loading="lazy">
                                                 </div>
                                             @endforeach
@@ -120,13 +120,18 @@ new class extends Component
     @script
     <script>
         new Swiper('.home1-inspiration-slider', {
-            slidesPerView: 1,
-            effect: 'fade',
+            slidesPerView: 2,
+            spaceBetween: 8,
             speed: 900,
             loop: {{ $inspirationImages->count() > 1 ? 'true' : 'false' }},
             autoplay: {
                 delay: 2200,
                 disableOnInteraction: false,
+            },
+            breakpoints: {
+                480: {
+                    slidesPerView: 3,
+                },
             },
         });
     </script>
