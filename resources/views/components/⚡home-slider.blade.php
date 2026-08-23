@@ -67,7 +67,7 @@ new class extends Component
                                         </div>
                                     </div>
                                 @endif
-                                <span class="inline-block text-sm font-semibold uppercase tracking-wider mb-4 px-4 py-1.5 rounded-full" 
+                                <span class="inline-block text-sm font-semibold uppercase tracking-wider mb-4 px-4 py-1.0 rounded-full" 
                                       style="background: rgba(219, 32, 119, 0.3); border: 1px solid rgba(219, 32, 119, 0.5);">
                                     Welcome to Latocross Artelier
                                 </span>
@@ -77,7 +77,7 @@ new class extends Component
                                 <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-xl">
                                     {{ $first->description }}
                                 </p>
-                                @if ($first->button_text)
+                                <!-- @if ($first->button_text)
                                     <a href="{{ $first->button_url }}" 
                                        class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
                                        style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
@@ -86,7 +86,7 @@ new class extends Component
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                                         </svg>
                                     </a>
-                                @endif
+                                @endif -->
                             </div>
                         @endif
                     </div>
