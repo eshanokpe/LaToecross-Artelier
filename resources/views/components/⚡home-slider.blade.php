@@ -77,16 +77,7 @@ new class extends Component
                                 <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-xl">
                                     {{ $first->description }}
                                 </p>
-                                <!-- @if ($first->button_text)
-                                    <a href="{{ $first->button_url }}" 
-                                       class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
-                                       style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
-                                        <span>{{ $first->button_text }}</span>
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                                        </svg>
-                                    </a>
-                                @endif -->
+                                
                             </div>
                         @endif
                     </div>
