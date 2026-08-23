@@ -1,16 +1,32 @@
 <?php
+use App\Models\Artwork;
+use App\Models\Fashion;
 use Livewire\Component;
 use App\Models\Slider;
 
 new class extends Component
-{
+{ 
     public $sliders;
+    public $inspirationImages;
 
     public function mount()
     {
         $this->sliders = Slider::where('is_active', true)
             ->orderBy('sort_order')
             ->get();
+
+        $this->inspirationImages = Artwork::query()
+            ->whereNotNull('image')
+            ->get(['title', 'image'])
+            ->map(fn ($item) => ['title' => $item->title, 'image' => $item->image, 'type' => 'Artwork'])
+            ->concat(
+                Fashion::query()
+                    ->whereNotNull('image')
+                    ->get(['title', 'image'])
+                    ->map(fn ($item) => ['title' => $item->title, 'image' => $item->image, 'type' => 'Fashion'])
+            )
+            ->shuffle()
+            ->values();
     }
 }; 
 ?>
@@ -37,6 +53,20 @@ new class extends Component
                         @if ($sliders->isNotEmpty())
                             @php $first = $sliders->first(); @endphp
                             <div class="banner-content text-white">
+                                @if ($inspirationImages->isNotEmpty())
+                                    <div class="swiper home1-inspiration-slider w-24 h-24 sm:w-28 sm:h-28 mb-5 rounded-xl overflow-hidden border-2 border-white/60 shadow-xl">
+                                        <div class="swiper-wrapper">
+                                            @foreach ($inspirationImages as $inspiration)
+                                                <div class="swiper-slide">
+                                                    <img src="{{ asset('storage/' . $inspiration['image']) }}"
+                                                         alt="{{ $inspiration['type'] }}: {{ $inspiration['title'] }}"
+                                                         class="w-full h-full object-cover"
+                                                         loading="lazy">
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                                 <span class="inline-block text-sm font-semibold uppercase tracking-wider mb-4 px-4 py-1.5 rounded-full" 
                                       style="background: rgba(219, 32, 119, 0.3); border: 1px solid rgba(219, 32, 119, 0.5);">
                                     Welcome to Latocross Artelier
@@ -86,4 +116,19 @@ new class extends Component
             box-shadow: 0 0 20px rgba(219, 32, 119, 0.4);
         }
     </style>
+
+    @script
+    <script>
+        new Swiper('.home1-inspiration-slider', {
+            slidesPerView: 1,
+            effect: 'fade',
+            speed: 900,
+            loop: {{ $inspirationImages->count() > 1 ? 'true' : 'false' }},
+            autoplay: {
+                delay: 2200,
+                disableOnInteraction: false,
+            },
+        });
+    </script>
+    @endscript
 </div>
