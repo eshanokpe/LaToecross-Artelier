@@ -3,11 +3,11 @@
 namespace App\Http\Middleware;
 
 use App\Models\Visitor;
-// use App\Notifications\NewVisitorNotification; // ❌ Comment this out or remove if not used elsewhere
+use App\Notifications\NewVisitorNotification; 
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Notification; // ❌ Comment this out
+use Illuminate\Support\Facades\Notification; 
 use Illuminate\Support\Facades\Log;
 use Wasender\Wasender; // ✅ Use Wasender instead of UltraMsg
 
@@ -40,7 +40,7 @@ class TrackVisitors
         $geo = $this->getGeo($ip);
 
         // Save visitor data
-        $visitor = Visitor::create([
+        $visitor = [
             'ip_address' => $ip,
             'country'    => $geo['country'],
             'city'       => $geo['city'],
@@ -48,7 +48,7 @@ class TrackVisitors
             'user_agent' => $request->userAgent(),
             'device'     => $this->getDevice($request->userAgent()),
             'browser'    => $this->getBrowser($request->userAgent()),
-        ]);
+        ];
 
         // ❌ DISABLE EMAIL NOTIFICATION TO PREVENT 500 ERRORS
         // $recipients = array_map('trim', explode(',', config('mail.admin_alerts')));

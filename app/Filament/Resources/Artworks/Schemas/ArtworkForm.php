@@ -72,7 +72,7 @@ class ArtworkForm
                     ->imageResizeMode('cover')
                     ->imagePreviewHeight('250')
                     ->columnSpanFull()
-                    ->maxSize(5120), // 5MB limit
+                    ->maxSize(10120), // 10MB limit
             ]);
     }
 }
