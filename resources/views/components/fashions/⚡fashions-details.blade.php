@@ -296,7 +296,7 @@ new class extends Component
                         @foreach($relatedFashions as $related)
                             <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
                                 <div class="relative overflow-hidden">
-                                    <a href="{{ route('fashion.show', encrypt($related->id)) }}">
+                                    <a href="{{ route('fashion.show', \Vinkla\Hashids\Facades\Hashids::encode($related->id)) }}">
                                         <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('assets/img/placeholder-fashion.jpg') }}" 
                                             alt="{{ $related->title }}"
                                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
@@ -311,7 +311,7 @@ new class extends Component
                                 </div>
                                 <div class="p-4">
                                     <h6 class="font-bold line-clamp-1" style="color: #1a0a0f;">
-                                        <a href="{{ route('fashion.show', encrypt($related->id)) }}" class="hover:underline">
+                                        <a href="{{ route('fashion.show', \Vinkla\Hashids\Facades\Hashids::encode($related->id)) }}" class="hover:underline">
                                             {{ $related->title }}
                                         </a>
                                     </h6>
@@ -490,7 +490,7 @@ new class extends Component
 
                 const number = @json(config('services.whatsapp.admin_number'));
                 const title = @json($fashion->title);
-                const pageUrl = @json(route('fashion.show', encrypt($fashion->id)));
+                const pageUrl = @json(route('fashion.show', \Vinkla\Hashids\Facades\Hashids::encode($fashion->id)));
 
                 const text = `Hello, I would like to inquire about this fashion item: *${title}* at LaToecross Artelier 🎨\n${pageUrl}`;
 

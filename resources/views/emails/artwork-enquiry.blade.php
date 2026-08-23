@@ -33,7 +33,7 @@
                 <p><strong>Price:</strong> ₦{{ number_format($artwork->price, 2) }}</p>
             @endif
             <p><strong>ID:</strong> #{{ $artwork->id }}</p>
-            <p><a href="{{ route('artwork.show', $artwork) }}" class="btn" style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; margin-top: 10px;">View Artwork</a></p>
+            <p><a href="{{ route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($artwork->id)) }}" class="btn" style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; margin-top: 10px;">View Artwork</a></p>
         </div>
 
         <div class="enquiry-details">

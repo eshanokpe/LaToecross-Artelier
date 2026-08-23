@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Fashion;
 use Illuminate\Http\Request;
+use Vinkla\Hashids\Facades\Hashids;
 
 class FashionController extends Controller
 {
@@ -20,9 +21,10 @@ class FashionController extends Controller
      */
     public function show($id)
     {
-        $decryptId = decrypt($id);
-        // Get the fashion item
-        $fashion = Fashion::findOrFail($decryptId);
+        $decodedIds = Hashids::decode($id);
+        abort_if(empty($decodedIds), 404);
+
+        $fashion = Fashion::findOrFail($decodedIds[0]);
         
         // Get related fashions (same category, excluding current)
         $relatedFashions = Fashion::where('id', '!=', $fashion->id)

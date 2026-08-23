@@ -39,7 +39,7 @@
             @if($fashion->price)
                 <p><strong>Price:</strong> ₦{{ number_format($fashion->price, 2) }}</p>
             @endif
-            <p><a href="{{ route('fashion.show', $fashion->id) }}" class="btn" style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; margin-top: 10px;">View Fashion</a></p>
+            <p><a href="{{ route('fashion.show', \Vinkla\Hashids\Facades\Hashids::encode($fashion->id)) }}" class="btn" style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; margin-top: 10px;">View Fashion</a></p>
         </div>
 
         <div class="enquiry-details">

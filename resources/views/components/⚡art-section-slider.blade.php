@@ -104,7 +104,7 @@ new class extends Component
                                     <div class="auction-card general-art bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden group h-full flex flex-col">
                                         <!-- Image Container -->
                                         <div class="auction-card-img-wrap relative overflow-hidden">
-                                            <a href="{{ route('artwork.show', encrypt($artwork->id) ) }}" class="card-img block">
+                                              <a href="{{ route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($artwork->id)) }}" class="card-img block">
                                                 <img
                                                     src="{{ $artwork->image ? asset('storage/' . $artwork->image) : asset('assets/img/home1/general-art-img1.jpg') }}"
                                                     alt="{{ $artwork->title }}"
@@ -141,7 +141,7 @@ new class extends Component
                                         <!-- Content Container -->
                                         <div class="auction-card-content p-3 flex-1 flex flex-col">
                                             <h6 class="text-base font-bold line-clamp-1 mb-2" style="color: #1a0a0f;">
-                                                <a href="{{ route('artwork.show', encrypt($artwork->id)) }}" class="hover:text-DB2077 transition-colors">
+                                                  <a href="{{ route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($artwork->id)) }}" class="hover:text-DB2077 transition-colors">
                                                     {{ $artwork->title }}
                                                 </a>
                                             </h6>
@@ -192,7 +192,7 @@ new class extends Component
                                             </p>
                                         </div>
 
-                                            <a href="{{ route('artwork.show', encrypt($artwork->id)) }}" 
+                                              <a href="{{ route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($artwork->id)) }}" 
                                                class="bid-btn block w-full text-center py-2.5 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:scale-[1.02] mt-2 text-sm"
                                                style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
                                                 <span>View Details</span>

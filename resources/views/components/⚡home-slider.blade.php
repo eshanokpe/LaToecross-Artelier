@@ -17,13 +17,13 @@ new class extends Component
 
         $this->inspirationImages = Artwork::query()
             ->whereNotNull('image')
-            ->get(['title', 'image'])
-            ->map(fn ($item) => ['title' => $item->title, 'image' => $item->image, 'type' => 'Artwork'])
+            ->get(['id', 'title', 'image'])
+            ->map(fn ($item) => ['id' => $item->id, 'title' => $item->title, 'image' => $item->image, 'type' => 'Artwork'])
             ->concat(
                 Fashion::query()
                     ->whereNotNull('image')
-                    ->get(['title', 'image'])
-                    ->map(fn ($item) => ['title' => $item->title, 'image' => $item->image, 'type' => 'Fashion'])
+                    ->get(['id', 'title', 'image'])
+                    ->map(fn ($item) => ['id' => $item->id, 'title' => $item->title, 'image' => $item->image, 'type' => 'Fashion'])
             )
             ->shuffle()
             ->values();
@@ -58,10 +58,16 @@ new class extends Component
                                         <div class="swiper-wrapper">
                                             @foreach ($inspirationImages as $inspiration)
                                                 <div class="swiper-slide">
-                                                    <img src="{{ asset('storage/' . $inspiration['image']) }}"
-                                                         alt="{{ $inspiration['type'] }}: {{ $inspiration['title'] }}"
-                                                         class="w-full h-full object-cover rounded-lg"
-                                                         loading="lazy">
+                                                    <a href="{{ $inspiration['type'] === 'Artwork'
+                                                          ? route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($inspiration['id']))
+                                                          : route('fashion.show', \Vinkla\Hashids\Facades\Hashids::encode($inspiration['id'])) }}"
+                                                       aria-label="View {{ strtolower($inspiration['type']) }}: {{ $inspiration['title'] }}"
+                                                       class="block w-full h-full">
+                                                        <img src="{{ asset('storage/' . $inspiration['image']) }}"
+                                                             alt="{{ $inspiration['type'] }}: {{ $inspiration['title'] }}"
+                                                             class="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-110"
+                                                             loading="lazy">
+                                                    </a>
                                                 </div>
                                             @endforeach
                                         </div>

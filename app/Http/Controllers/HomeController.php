@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Artwork;
+use Vinkla\Hashids\Facades\Hashids;
 use App\Models\Fashion;
 use App\Models\Article;
 use App\Models\Setting;
@@ -200,9 +201,10 @@ class HomeController extends Controller
  
     public function artworkShow($id)
     {
-        $decryptId = decrypt($id);
-        // Find artwork by its slug instead of ID
-        $artwork = Artwork::where('id', $decryptId)->firstOrFail();
+        $decodedIds = Hashids::decode($id);
+        abort_if(empty($decodedIds), 404);
+
+        $artwork = Artwork::findOrFail($decodedIds[0]);
 
         return view('frontend.artworks.artwork-show', compact('artwork'));
     }

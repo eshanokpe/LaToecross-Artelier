@@ -416,7 +416,7 @@ new class extends Component
                         @foreach($this->relatedArtworks as $related)
                             <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden">
                                 <div class="relative overflow-hidden">
-                                    <a href="{{ route('artwork.show', encrypt($related->id) ) }}">
+                                    <a href="{{ route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($related->id)) }}">
                                         <img src="{{ $related->image ? asset('storage/' . $related->image) : asset('assets/img/placeholder-artwork.jpg') }}" 
                                              alt="{{ $related->title }}"
                                              class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700">
@@ -430,7 +430,7 @@ new class extends Component
                                 </div>
                                 <div class="p-4 space-y-2">
                                     <h6 class="font-bold text-sm line-clamp-1" style="color: #1a0a0f;">
-                                        <a href="{{ route('artwork.show', encrypt($related->id)) }}" class="hover:underline">
+                                        <a href="{{ route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($related->id)) }}" class="hover:underline">
                                             {{ $related->title }}
                                         </a>
                                     </h6>
@@ -444,7 +444,7 @@ new class extends Component
                                             <span style="color: #6b3b4f;">Not for sale</span>
                                         @endif
                                     </p>
-                                    <a href="{{ route('artwork.show', encrypt($related->id) ) }}" 
+                                    <a href="{{ route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($related->id)) }}" 
                                        class="block text-center py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
                                        style="background: #fce4ec; color: #DB2077;">
                                         View Details
@@ -623,7 +623,7 @@ new class extends Component
                 
                 // const text = `Hello, I would like to inquire about this artwork: **${title}** at LaToecross Artelier 🎨`;
                 
-                const artworkPageUrl = @json(route('artwork.show', encrypt($this->artwork->id)));
+                const artworkPageUrl = @json(route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($this->artwork->id)));
                 const text = `Hello, I would like to inquire about this artwork: *${title}* at LaToecross Artelier 🎨\n${artworkPageUrl}`;
                 const whatsappUrl = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
                 // WhatsApp URL with Image and Text
