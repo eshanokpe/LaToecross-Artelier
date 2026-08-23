@@ -57,7 +57,7 @@ new class extends Component
                               style="background: rgba(219, 32, 119, 0.3); border: 1px solid rgba(219, 32, 119, 0.5);">
                             Welcome to Latocross Artelier
                         </span>
-                        <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style="font-family: 'Georgia', serif;">
+                        <h2 class="text-4xl md:text-5xl lg:text-5xl font-bold mb-4" style="font-family: 'Georgia', serif;">
                             {{ $first->title }}
                         </h2>
                         <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-xl">
