@@ -10,7 +10,7 @@ use App\Filament\Resources\FashionEnquiries\Schemas\FashionEnquiryForm;
 use App\Filament\Resources\FashionEnquiries\Schemas\FashionEnquiryInfolist;
 use App\Filament\Resources\FashionEnquiries\Tables\FashionEnquiriesTable;
 use App\Models\FashionEnquiry;
-use BackedEnum;
+use BackedEnum; 
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -23,7 +23,7 @@ class FashionEnquiryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
     
-    protected static ?string $recordTitleAttribute = 'FashionEnquiry';
+    protected static ?string $recordTitleAttribute = 'name';
     protected static string|UnitEnum|null $navigationGroup = 'Management';
 
     // ❌ This removes the "Create" button globally

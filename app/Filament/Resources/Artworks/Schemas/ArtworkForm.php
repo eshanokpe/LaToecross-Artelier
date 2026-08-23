@@ -61,7 +61,7 @@ class ArtworkForm
                     ->required()
                     ->placeholder('Tell the story behind this piece...')
                     ->columnSpanFull(),
-
+ 
                 FileUpload::make('image')
                     ->label('Artwork Image')
                     ->image()

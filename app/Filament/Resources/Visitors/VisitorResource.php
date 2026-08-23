@@ -22,8 +22,8 @@ class VisitorResource extends Resource
     protected static ?string $model = Visitor::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
-
-    protected static ?string $recordTitleAttribute = 'Analytics';
+ 
+    protected static ?string $recordTitleAttribute = 'page_url';
     protected static string|UnitEnum|null $navigationGroup = 'Visitors Engagement';
 
     public static function form(Schema $schema): Schema
