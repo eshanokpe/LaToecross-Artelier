@@ -67,7 +67,7 @@ new class extends Component
                                         </div>
                                     </div>
                                 @endif
-                                <span class="inline-block text-sm font-semibold uppercase tracking-wider mb-4 px-4 py-1.0 rounded-full" 
+                                <span class="inline-block text-sm sm:text-sm md:text-base font-semibold uppercase tracking-wider mb-4 px-4 py-1.0 rounded-full" 
                                       style="background: rgba(219, 32, 119, 0.3); border: 1px solid rgba(219, 32, 119, 0.5);">
                                     Welcome to Latocross Artelier
                                 </span>
