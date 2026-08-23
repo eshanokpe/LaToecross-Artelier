@@ -64,42 +64,36 @@ class TrackVisitors
     /**
      * Send a WhatsApp alert for the new visitor via Wasender.
      */
-    private function sendWhatsAppAlert(Visitor $visitor): void
-    {
-        try {
-            // Add these to your .env file:
-            // WASENDER_API_URL=https://wasenderapi.com/api/send-message
-            // WASENDER_BEARER_TOKEN=9b2c787349d305f72c0fc247f37e25684bbfac4af87ce195e042a4d729dd9eb1
-            // WASENDER_ADMIN_PHONE=+1234567890
-            
-            $apiUrl     = config('services.wasender.api_url');
-            $token      = config('services.wasender.bearer_token');
-            $adminPhone = config('services.wasender.admin_phone');
+    private function sendWhatsAppAlert(array $visitor): void
+{
+    try {
+        $apiUrl     = config('services.wasender.api_url');
+        $token      = config('services.wasender.bearer_token');
+        $adminPhone = config('services.wasender.admin_phone');
 
-            if (empty($apiUrl) || empty($token) || empty($adminPhone)) {
-                Log::warning('Wasender credentials missing for visitor alert.');
-                return;
-            }
-
-            $whatsappMessage = "📢 *New Visitor on Latocross*\n\n"
-                . "🌐 *Page:* {$visitor->page_url}\n"
-                . "📍 *Location:* {$visitor->country}, {$visitor->city}\n"
-                . "💻 *Device:* {$visitor->device} / {$visitor->browser}\n"
-                . "🕒 *Time:* {$visitor->created_at->format('H:i')}";
-
-            // Send Request using Laravel HTTP Client
-            \Illuminate\Support\Facades\Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type'  => 'application/json',
-            ])->post($apiUrl, [
-                'to'   => $adminPhone,
-                'text' => $whatsappMessage
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Visitor Alert WhatsApp Error: ' . $e->getMessage());
+        if (empty($apiUrl) || empty($token) || empty($adminPhone)) {
+            Log::warning('Wasender credentials missing for visitor alert.');
+            return;
         }
+
+        $whatsappMessage = "📢 *New Visitor on Latocross*\n\n"
+            . "🌐 *Page:* {$visitor['page_url']}\n"
+            . "📍 *Location:* {$visitor['country']}, {$visitor['city']}\n"
+            . "💻 *Device:* {$visitor['device']} / {$visitor['browser']}\n"
+            . "🕒 *Time:* " . Carbon::now()->format('H:i');
+
+        \Illuminate\Support\Facades\Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type'  => 'application/json',
+        ])->post($apiUrl, [
+            'to'   => $adminPhone,
+            'text' => $whatsappMessage
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Visitor Alert WhatsApp Error: ' . $e->getMessage());
     }
+}
 
     /**
      * Resolve the real visitor IP

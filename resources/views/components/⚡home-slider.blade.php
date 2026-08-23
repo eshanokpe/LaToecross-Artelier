@@ -47,49 +47,61 @@ new class extends Component
         </div>
 
         <div class="banner-wrapper absolute inset-0 flex items-center">
-            <div class="container mx-auto px-4">
-                <div class="row">
-                    <div class="col-xxl-7 col-lg-8">
-                        @if ($sliders->isNotEmpty())
-                            @php $first = $sliders->first(); @endphp
-                            <div class="banner-content text-white">
-                                @if ($inspirationImages->isNotEmpty())
-                                    <div class="swiper home1-inspiration-slider w-full max-w-md h-24 sm:h-28 mb-5 rounded-xl overflow-hidden border-2 border-white/60 shadow-xl">
-                                        <div class="swiper-wrapper">
-                                            @foreach ($inspirationImages as $inspiration)
-                                                <div class="swiper-slide">
-                                                    <a href="{{ $inspiration['type'] === 'Artwork'
-                                                          ? route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($inspiration['id']))
-                                                          : route('fashion.show', \Vinkla\Hashids\Facades\Hashids::encode($inspiration['id'])) }}"
-                                                       aria-label="View {{ strtolower($inspiration['type']) }}: {{ $inspiration['title'] }}"
-                                                       class="block w-full h-full">
-                                                        <img src="{{ asset('storage/' . $inspiration['image']) }}"
-                                                             alt="{{ $inspiration['type'] }}: {{ $inspiration['title'] }}"
-                                                             class="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-110"
-                                                             loading="lazy">
-                                                    </a>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-                                <span class="inline-block text-sm sm:text-sm md:text-base font-semibold uppercase tracking-wider mb-4 px-4 py-1.0 rounded-full" 
-                                      style="background: rgba(219, 32, 119, 0.3); border: 1px solid rgba(219, 32, 119, 0.5);">
-                                    Welcome to Latocross Artelier
-                                </span>
-                                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style="font-family: 'Georgia', serif;">
-                                    {{ $first->title }}
-                                </h1>
-                                <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-xl">
-                                    {{ $first->description }}
-                                </p>
-                                
-                            </div>
+    <div class="container mx-auto px-4">
+        <div class="row items-center">
+            <div class="col-xxl-6 col-lg-6">
+                @if ($sliders->isNotEmpty())
+                    @php $first = $sliders->first(); @endphp
+                    <div class="banner-content text-white">
+                        <span class="inline-block text-sm sm:text-sm md:text-base font-semibold uppercase tracking-wider mb-4 px-4 py-1.0 rounded-full" 
+                              style="background: rgba(219, 32, 119, 0.3); border: 1px solid rgba(219, 32, 119, 0.5);">
+                            Welcome to Latocross Artelier
+                        </span>
+                        <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4" style="font-family: 'Georgia', serif;">
+                            {{ $first->title }}
+                        </h2>
+                        <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-xl">
+                            {{ $first->description }}
+                        </p>
+                        @if ($first->button_text)
+                            <a href="{{ $first->button_url }}" 
+                                class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
+                                style="background: linear-gradient(135deg, #DB2077, #ff6b9d); color: white;">
+                                <span>{{ $first->button_text }}</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                </svg>
+                            </a>
                         @endif
                     </div>
-                </div>
+                @endif
+            </div>
+
+            <div class="col-xxl-6 col-lg-6 order-first order-lg-2">
+                @if ($inspirationImages->isNotEmpty())
+                    <div class="swiper home1-inspiration-slider w-full max-w-md h-24 sm:h-28 mb-5 rounded-xl overflow-hidden border-2 border-white/60 shadow-xl ml-auto">
+                        <div class="swiper-wrapper">
+                            @foreach ($inspirationImages as $inspiration)
+                                <div class="swiper-slide">
+                                    <a href="{{ $inspiration['type'] === 'Artwork'
+                                        ? route('artwork.show', \Vinkla\Hashids\Facades\Hashids::encode($inspiration['id']))
+                                        : route('fashion.show', \Vinkla\Hashids\Facades\Hashids::encode($inspiration['id'])) }}"
+                                    aria-label="View {{ strtolower($inspiration['type']) }}: {{ $inspiration['title'] }}"
+                                    class="block w-full h-full">
+                                        <img src="{{ asset('storage/' . $inspiration['image']) }}"
+                                            alt="{{ $inspiration['type'] }}: {{ $inspiration['title'] }}"
+                                            class="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-110"
+                                            loading="lazy">
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
+    </div>
+</div>
 
         <div class="pagination-area absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
             <div class="swiper-pagination1 flex gap-2"></div>

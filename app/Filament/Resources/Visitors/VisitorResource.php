@@ -25,7 +25,7 @@ class VisitorResource extends Resource
  
     protected static ?string $recordTitleAttribute = 'page_url';
     protected static string|UnitEnum|null $navigationGroup = 'Visitors Engagement';
-
+ 
     public static function form(Schema $schema): Schema
     {
         return VisitorForm::configure($schema);
